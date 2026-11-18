@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Payment;
 use App\Models\User;
 
 test('profile page is displayed', function () {
@@ -108,4 +109,23 @@ test('profile rejects an invalid phone number', function () {
             'phone' => 'not-a-number',
         ])
         ->assertSessionHasErrors('phone');
+});
+
+test('staff and the owner cannot delete their own account, which keeps the audit trail', function (string $state) {
+    $user = User::factory()->{$state}()->create();
+    Payment::factory()->create(['recorded_by' => $user->id]);
+
+    $this->actingAs($user)
+        ->delete('/profile', ['password' => 'password'])
+        ->assertForbidden();
+
+    $this->assertAuthenticated();
+    expect($user->fresh())->not->toBeNull();
+})->with(['staff', 'admin']);
+
+test('the delete account section is hidden from staff', function () {
+    $this->actingAs(User::factory()->staff()->create())
+        ->get('/profile')
+        ->assertOk()
+        ->assertDontSee('Delete Account');
 });

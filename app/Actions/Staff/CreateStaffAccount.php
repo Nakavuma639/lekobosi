@@ -39,12 +39,22 @@ class CreateStaffAccount
      */
     public function sendPasswordLink(User $user): bool
     {
+        return $this->sendPasswordLinkWithStatus($user) === Password::RESET_LINK_SENT;
+    }
+
+    /**
+     * Send the "set your password" email and return the broker's status, e.g.
+     * Password::RESET_THROTTLED when a link went out less than a minute ago.
+     * Returns null when the email itself failed.
+     */
+    public function sendPasswordLinkWithStatus(User $user): ?string
+    {
         try {
-            return Password::broker()->sendResetLink(['email' => $user->email]) === Password::RESET_LINK_SENT;
+            return Password::broker()->sendResetLink(['email' => $user->email]);
         } catch (Throwable $exception) {
             Log::warning('Staff password link could not be sent.', ['user_id' => $user->id, 'exception' => $exception::class]);
 
-            return false;
+            return null;
         }
     }
 }

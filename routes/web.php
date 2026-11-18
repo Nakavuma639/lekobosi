@@ -73,7 +73,7 @@ Route::middleware(['auth', 'verified', 'role:admin,staff'])
             Route::post('/staff', [Admin\StaffController::class, 'store'])->name('staff.store');
             Route::patch('/staff/{user}', [Admin\StaffController::class, 'update'])->name('staff.update');
             Route::post('/staff/{user}/password-link', [Admin\StaffController::class, 'sendPasswordLink'])
-                ->middleware('throttle:6,1')
+                ->middleware('throttle:password-links')
                 ->name('staff.password-link');
         });
         Route::get('/messages', [Admin\ContactMessageController::class, 'index'])->name('messages.index');

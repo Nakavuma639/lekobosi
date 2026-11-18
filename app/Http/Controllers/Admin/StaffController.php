@@ -11,6 +11,7 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Password;
 use Illuminate\View\View;
 
 class StaffController extends Controller
@@ -84,12 +85,12 @@ class StaffController extends Controller
     {
         Gate::authorize('update', $user);
 
-        $sent = $createStaffAccount->sendPasswordLink($user);
+        $status = match ($createStaffAccount->sendPasswordLinkWithStatus($user)) {
+            Password::RESET_LINK_SENT => "A password link has been emailed to {$user->name}.",
+            Password::RESET_THROTTLED => "A link was sent to {$user->name} less than a minute ago. Ask them to check their inbox and spam folder, or try again shortly.",
+            default => 'The email could not be sent. Check the mail settings and try again in a few minutes.',
+        };
 
-        return redirect()
-            ->route('admin.staff.index')
-            ->with('status', $sent
-                ? "A password link has been emailed to {$user->name}."
-                : 'The email could not be sent. Check the mail settings and try again in a few minutes.');
+        return redirect()->route('admin.staff.index')->with('status', $status);
     }
 }

@@ -109,3 +109,14 @@ it('lists staff and admins but not customers', function () {
         ->assertSee('Owner Harriet')
         ->assertDontSee('Customer Person');
 });
+
+it('explains when a password link was sent less than a minute ago', function () {
+    Notification::fake();
+    $staff = User::factory()->staff()->create();
+
+    $this->actingAs($this->admin)->post(route('admin.staff.password-link', $staff));
+
+    $this->actingAs($this->admin)
+        ->post(route('admin.staff.password-link', $staff))
+        ->assertSessionHas('status', "A link was sent to {$staff->name} less than a minute ago. Ask them to check their inbox and spam folder, or try again shortly.");
+});
