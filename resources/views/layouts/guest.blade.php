@@ -17,7 +17,7 @@
                 <div class="absolute inset-0 bg-gradient-to-t from-brand-900/90 via-brand-900/30 to-transparent"></div>
                 <div class="absolute bottom-0 p-12">
                     <p class="max-w-md font-display text-3xl font-semibold leading-tight text-white">
-                        Book, track and pay for your event in one place.
+                        Book and track your event, and see what you've paid, in one place.
                     </p>
                     <p class="mt-4 text-brand-100">Lekobosi Restaurant &amp; Outside Catering, Kyankwanzi</p>
                 </div>
