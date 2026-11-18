@@ -77,7 +77,7 @@
                                             {{ $booking->event_date->format('j M Y') }}
                                             @if (in_array($booking->event_date->toDateString(), $conflictDates, true))
                                                 <span class="mt-1 block text-xs font-semibold text-brand-700">Date already taken</span>
-                                            @elseif ($booking->event_date->isPast())
+                                            @elseif ($booking->event_date->lt(today()))
                                                 <span class="mt-1 block text-xs font-semibold text-stone-500">Date has passed</span>
                                             @endif
                                         </td>

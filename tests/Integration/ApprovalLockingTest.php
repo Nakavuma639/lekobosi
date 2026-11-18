@@ -83,6 +83,22 @@ it('refuses the second approval once the first has committed', function () {
     expect(Booking::query()->where('event_date', '2026-12-12')->where('status', BookingStatus::Approved)->count())->toBe(1);
 });
 
+it('switches to READ COMMITTED before locking the date', function () {
+    $booking = Booking::factory()->on('2026-12-12')->create();
+    $connection = DB::connection('mysql_lock_test');
+    $connection->enableQueryLog();
+
+    app(ChangeBookingStatus::class)->handle($booking, BookingStatus::Approved, $this->admin);
+
+    $queries = array_column($connection->getQueryLog(), 'query');
+    $isolationIndex = array_search('SET TRANSACTION ISOLATION LEVEL READ COMMITTED', $queries, true);
+    $lockIndex = collect($queries)->search(fn (string $query) => str_ends_with($query, 'for update'));
+
+    expect($isolationIndex)->not->toBeFalse()
+        ->and($lockIndex)->not->toBeFalse()
+        ->and($isolationIndex)->toBeLessThan($lockIndex);
+});
+
 it('does not block approvals on other dates', function () {
     $other = DB::connection('mysql_lock_test_other');
     Booking::factory()->on('2026-12-12')->create();
