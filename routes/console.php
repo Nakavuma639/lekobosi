@@ -15,5 +15,5 @@ Artisan::command('inspire', function () {
 */
 Schedule::command('queue:work --stop-when-empty --tries=3 --max-time=50')
     ->everyMinute()
-    ->withoutOverlapping()
+    ->withoutOverlapping(5)
     ->runInBackground();

@@ -18,6 +18,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
+use Symfony\Component\Mailer\Exception\TransportException;
 
 beforeEach(function () {
     $this->travelTo('2026-11-18 10:00:00');
@@ -233,6 +234,18 @@ describe('when the mail server is down', function () {
             ->withArgs(fn (string $message, array $context) => ! str_contains(json_encode($context), '@'))
             ->atLeast()->once();
     });
+});
+
+it('keeps addresses out of the log when a queued email fails in the worker', function () {
+    Log::spy();
+
+    report(new TransportException('Failed to authenticate on SMTP server with username "owner@example.com".'));
+
+    Log::shouldNotHaveReceived('error');
+    Log::shouldHaveReceived('warning')
+        ->withArgs(fn (string $message, array $context) => $message === 'Mail transport failed.'
+            && ! str_contains(json_encode($context), '@'))
+        ->once();
 });
 
 describe('email content', function () {
