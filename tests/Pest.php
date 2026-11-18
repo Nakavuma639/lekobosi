@@ -18,6 +18,10 @@ pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
     ->in('Feature');
 
+// Integration tests talk to a real MySQL database and manage their own schema.
+pest()->extend(TestCase::class)
+    ->in('Integration');
+
 /*
 |--------------------------------------------------------------------------
 | Expectations

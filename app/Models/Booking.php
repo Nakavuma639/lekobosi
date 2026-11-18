@@ -5,9 +5,12 @@ namespace App\Models;
 use App\Enums\BookingSource;
 use App\Enums\BookingStatus;
 use App\Enums\EventType;
+use Carbon\CarbonImmutable;
+use Carbon\CarbonInterface;
 use Database\Factories\BookingFactory;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -44,11 +47,24 @@ class Booking extends Model
             'source' => BookingSource::class,
             'status' => BookingStatus::class,
             'event_type' => EventType::class,
-            'event_date' => 'date',
             'guest_count' => 'integer',
             'quoted_amount' => 'integer',
             'status_changed_at' => 'datetime',
         ];
+    }
+
+    /**
+     * The event date, always stored as a plain Y-m-d string so it can be
+     * matched with an indexed `where event_date = ?` on every database.
+     *
+     * @return Attribute<CarbonImmutable|null, CarbonInterface|string|null>
+     */
+    protected function eventDate(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value) => $value === null ? null : CarbonImmutable::parse($value)->startOfDay(),
+            set: fn (CarbonInterface|string|null $value) => $value === null ? null : CarbonImmutable::parse($value)->toDateString(),
+        );
     }
 
     /**

@@ -52,6 +52,10 @@ Findings from Step 0 (spec §10) and every frontend ↔ spec mismatch. Rule: **f
 | Dashboard redirect | `/dashboard` | `dashboard` | signed in → sends to the role's dashboard |
 | Customer dashboard | `/account` | `customer.dashboard` | `role:customer` |
 | Admin/staff dashboard | `/admin` | `admin.dashboard` | `role:admin,staff` |
+| Booking list (filters `status`, `source`, `q`, `from`, `to`, `sort`) | `/admin/bookings` | `admin.bookings.index` | `role:admin,staff` + policy |
+| Booking detail | `/admin/bookings/{reference}` | `admin.bookings.show` | `role:admin,staff` + policy |
+| Approve / reject / cancel | `PATCH /admin/bookings/{reference}/status` | `admin.bookings.status.update` | `role:admin` + policy `decide` |
+| Calendar (`month=YYYY-MM`, `pending=0/1`) | `/admin/calendar` | `admin.calendar` | `role:admin,staff` + policy |
 
 ## 4. Forms — exact field names
 
@@ -99,13 +103,13 @@ Also on the form:
 
 | Where | Placeholder | Phase |
 |---|---|---|
-| Admin dashboard | booking totals and booking table (empty state) | 4 |
+| Admin dashboard | unread messages and total outstanding balance tiles | 5, 7 |
 | Contact form | `action="#"` | 5 |
 | Customer dashboard | quote, paid and balance per booking (the booking list itself is live) | 7 |
 
 ## 6. UI gaps (in the spec, no screen yet)
 
-Payments & Balances · booking detail with approve/reject · confirmed-dates calendar · printable receipts · reports · staff phone/walk-in booking entry · conflict attempts · contact messages inbox · staff account management. These are built as Breeze-styled admin pages in their phases.
+Payments & Balances · printable receipts · reports · staff phone/walk-in booking entry · editing booking details · conflict attempts · contact messages inbox · staff account management. These are built as Breeze-styled admin pages in their phases. (The booking detail page, approve/reject and the calendar were built in Phase 4.)
 
 ## 7. Open questions (spec §13) — defaults in use
 
@@ -118,4 +122,5 @@ Configurable in `.env` / `config/lekobosi.php`: `MAX_EVENTS_PER_DAY=1`, `MIN_LEA
 - Laravel 13 needs PHP ≥ 8.3. XAMPP ships PHP 8.2, so artisan/composer/tests run on Herd's PHP 8.5; XAMPP provides **MariaDB 10.4 only**.
 - Run `npm run build` (or `npm run dev`) after view changes. Pages load assets through Vite.
 - `php artisan db:show` fails on MariaDB 10.4 (`performance_schema` disabled). Cosmetic only.
-- Tests use in-memory SQLite. The approve-under-lock test (Phase 4) needs a MySQL test database.
+- Tests use in-memory SQLite, except `tests/Integration`. Those tests prove the approval row lock against a real MySQL database, `lehobothweb_db_testing` (override it with `MYSQL_TEST_*` env vars), and skip themselves if MySQL isn't running.
+- Approvals run at READ COMMITTED on MySQL. Same-date approvals still wait for each other's row locks, but neighbouring dates don't block each other (no gap locks).

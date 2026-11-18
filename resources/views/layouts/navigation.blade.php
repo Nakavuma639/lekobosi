@@ -1,7 +1,11 @@
 @php
     $user = Auth::user();
     $navLinks = $user->isBackOffice()
-        ? [['route' => 'admin.dashboard', 'label' => 'Dashboard']]
+        ? [
+            ['route' => 'admin.dashboard', 'label' => 'Dashboard'],
+            ['route' => 'admin.bookings.index', 'label' => 'Bookings', 'active' => 'admin.bookings.*'],
+            ['route' => 'admin.calendar', 'label' => 'Calendar'],
+        ]
         : [['route' => 'customer.dashboard', 'label' => 'My bookings'], ['route' => 'bookings.create', 'label' => 'Book an event']];
 @endphp
 
@@ -21,7 +25,7 @@
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     @foreach ($navLinks as $link)
-                        <x-nav-link :href="route($link['route'])" :active="request()->routeIs($link['route'])">
+                        <x-nav-link :href="route($link['route'])" :active="request()->routeIs($link['active'] ?? $link['route'])">
                             {{ $link['label'] }}
                         </x-nav-link>
                     @endforeach
@@ -84,7 +88,7 @@
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
             @foreach ($navLinks as $link)
-                <x-responsive-nav-link :href="route($link['route'])" :active="request()->routeIs($link['route'])">
+                <x-responsive-nav-link :href="route($link['route'])" :active="request()->routeIs($link['active'] ?? $link['route'])">
                     {{ $link['label'] }}
                 </x-responsive-nav-link>
             @endforeach

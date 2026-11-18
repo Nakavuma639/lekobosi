@@ -41,6 +41,12 @@ Route::middleware(['auth', 'verified', 'role:admin,staff'])
     ->name('admin.')
     ->group(function () {
         Route::get('/', Admin\DashboardController::class)->name('dashboard');
+        Route::get('/bookings', [Admin\BookingController::class, 'index'])->name('bookings.index');
+        Route::get('/bookings/{booking}', [Admin\BookingController::class, 'show'])->name('bookings.show');
+        Route::patch('/bookings/{booking}/status', [Admin\BookingStatusController::class, 'update'])
+            ->middleware('role:admin')
+            ->name('bookings.status.update');
+        Route::get('/calendar', Admin\CalendarController::class)->name('calendar');
     });
 
 Route::middleware('auth')->group(function () {

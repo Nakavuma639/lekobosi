@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\BookingStatus;
 use App\Models\Booking;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
@@ -53,8 +54,46 @@ class BookingAvailability
     {
         return Booking::query()
             ->approved()
-            ->whereDate('event_date', $date->toDateString())
+            ->where('event_date', $date->toDateString())
             ->count();
+    }
+
+    /**
+     * Which of the given dates are full, as Y-m-d strings.
+     *
+     * @param  iterable<CarbonInterface|string>  $dates
+     * @return list<string>
+     */
+    public function fullDatesAmong(iterable $dates): array
+    {
+        $dateStrings = collect($dates)
+            ->map(fn (CarbonInterface|string $date): string => CarbonImmutable::parse($date)->toDateString())
+            ->unique()
+            ->values();
+
+        if ($dateStrings->isEmpty()) {
+            return [];
+        }
+
+        return Booking::query()
+            ->approved()
+            ->whereIn('event_date', $dateStrings->all())
+            ->selectRaw('event_date, COUNT(*) as approved_count')
+            ->groupBy('event_date')
+            ->havingRaw('COUNT(*) >= ?', [$this->capacity()])
+            ->pluck('event_date')
+            ->map(fn (mixed $date): string => CarbonImmutable::parse($date)->toDateString())
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Whether a pending booking's date has already been filled by approved
+     * bookings, so the admin should look before approving it.
+     */
+    public function hasDateConflict(Booking $booking): bool
+    {
+        return $booking->status === BookingStatus::Pending && $this->isFull($booking->event_date);
     }
 
     /**

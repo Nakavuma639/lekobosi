@@ -2,23 +2,40 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Enums\UserRole;
+use App\Enums\BookingStatus;
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Models\Booking;
+use App\Services\BookingAvailability;
+use App\Services\BookingStatistics;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
     /**
-     * Show the back-office dashboard to the owner and staff.
+     * Show the back-office dashboard with live totals and requests awaiting a decision.
      */
-    public function __invoke(Request $request): View
+    public function __invoke(Request $request, BookingStatistics $statistics, BookingAvailability $availability): View
     {
         $user = $request->user();
-        $customerCount = User::query()->where('role', UserRole::Customer)->count();
-        $staffCount = User::query()->where('role', UserRole::Staff)->where('is_active', true)->count();
+        $totals = $statistics->totals();
 
-        return view('admin.dashboard', compact('user', 'customerCount', 'staffCount'));
+        $pendingBookings = Booking::query()
+            ->where('status', BookingStatus::Pending)
+            ->orderBy('event_date')
+            ->orderBy('id')
+            ->limit(10)
+            ->get();
+        $conflictDates = $availability->fullDatesAmong($pendingBookings->pluck('event_date'));
+
+        $upcomingBookings = Booking::query()
+            ->approved()
+            ->where('event_date', '>=', today()->toDateString())
+            ->orderBy('event_date')
+            ->orderBy('id')
+            ->limit(5)
+            ->get();
+
+        return view('admin.dashboard', compact('user', 'totals', 'pendingBookings', 'conflictDates', 'upcomingBookings'));
     }
 }

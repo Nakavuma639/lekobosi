@@ -37,18 +37,25 @@ describe('back-office area', function () {
         $this->actingAs(User::factory()->{$state}()->create())
             ->get(route('admin.dashboard'))
             ->assertOk()
-            ->assertSee('Booking requests');
+            ->assertSee('Awaiting your decision');
     })->with(['admin', 'staff']);
 
-    it('shows live account totals', function () {
-        User::factory()->count(3)->create();
-        User::factory()->staff()->create();
-        User::factory()->staff()->inactive()->create();
+    it('shows live booking totals', function () {
+        $this->travelTo('2026-11-18 10:00:00');
+        Booking::factory()->count(3)->create();
+        Booking::factory()->approved()->on('2026-12-01')->create();
+        Booking::factory()->approved()->on('2027-03-01')->create();
+        Booking::factory()->rejected()->create();
 
         $this->actingAs(User::factory()->admin()->create())
             ->get(route('admin.dashboard'))
-            ->assertViewHas('customerCount', 3)
-            ->assertViewHas('staffCount', 1);
+            ->assertViewHas('totals', [
+                'total' => 6,
+                'pending' => 3,
+                'approved' => 2,
+                'rejected' => 1,
+                'upcoming_30_days' => 1,
+            ]);
     });
 });
 
