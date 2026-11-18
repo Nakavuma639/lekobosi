@@ -2,24 +2,19 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
      * Seed the application's database.
+     *
+     * The real owner account is created with `php artisan lekobosi:create-admin`,
+     * never by a seeder. `php artisan db:seed` loads fake demo data for local
+     * testing only (see DemoDataSeeder; it refuses to run in production).
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        $this->call(DemoDataSeeder::class);
     }
 }

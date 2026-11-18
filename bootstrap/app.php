@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnsureAccountIsActive;
 use App\Http\Middleware\EnsureUserHasRole;
+use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -20,7 +21,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => EnsureUserHasRole::class,
         ]);
 
-        $middleware->web(append: [
+        $middleware->web(prepend: [
+            SecurityHeaders::class,
+        ], append: [
             EnsureAccountIsActive::class,
         ]);
     })

@@ -31,6 +31,24 @@ return [
     |
     */
 
+    /*
+    |--------------------------------------------------------------------------
+    | Security (production)
+    |--------------------------------------------------------------------------
+    |
+    | force_https redirects plain HTTP to HTTPS and sends an HSTS header.
+    | Turn it on once the site has a certificate. trusted_proxies lists the
+    | load balancer / proxy addresses (or "*") so HTTPS is detected correctly
+    | behind hosting proxies such as Cloudflare.
+    |
+    */
+
+    'security' => [
+        'force_https' => (bool) env('FORCE_HTTPS', false),
+        'hsts_max_age' => (int) env('HSTS_MAX_AGE', 31536000),
+        'trusted_proxies' => env('TRUSTED_PROXIES'),
+    ],
+
     'admin' => [
         'notify_email' => env('ADMIN_NOTIFY_EMAIL'),
         'whatsapp_number' => env('ADMIN_WHATSAPP_NUMBER'),

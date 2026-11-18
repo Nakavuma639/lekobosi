@@ -6,9 +6,11 @@ use App\Enums\UserRole;
 use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\DevCommands;
+use Illuminate\Http\Middleware\TrustProxies;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -28,6 +30,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureRateLimiting();
         $this->configureGates();
+        $this->configureHttps();
 
         DevCommands::withoutVendorCommands();
         DevCommands::withoutDefaultCommands();
@@ -38,6 +41,21 @@ class AppServiceProvider extends ServiceProvider
         // confirmation would sit in the jobs table and never be sent.
         DevCommands::artisan('queue:listen --tries=1 --timeout=0', 'queue');
         DevCommands::node('dev', 'vite');
+    }
+
+    /**
+     * Behind a hosting proxy, trust its forwarded headers so HTTPS is
+     * detected; and generate https:// links (emails included) when forced.
+     */
+    private function configureHttps(): void
+    {
+        if ($proxies = config('lekobosi.security.trusted_proxies')) {
+            TrustProxies::at($proxies === '*' ? '*' : array_map('trim', explode(',', $proxies)));
+        }
+
+        if (config('lekobosi.security.force_https')) {
+            URL::forceScheme('https');
+        }
     }
 
     /**
