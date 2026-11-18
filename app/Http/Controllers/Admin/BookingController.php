@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\BookingSource;
 use App\Enums\BookingStatus;
+use App\Enums\PaymentMethod;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Services\BookingAvailability;
@@ -73,7 +74,7 @@ class BookingController extends Controller
     {
         Gate::authorize('view', $booking);
 
-        $booking->load(['statusHistories.changer', 'decider', 'creator', 'user', 'notificationLogs']);
+        $booking->load(['statusHistories.changer', 'decider', 'creator', 'user', 'notificationLogs', 'payments.recorder', 'payments.voider']);
 
         $hasDateConflict = $availability->hasDateConflict($booking);
         $otherBookingsOnDate = Booking::query()
@@ -85,8 +86,9 @@ class BookingController extends Controller
         $canDecide = $request->user()->can('decide', $booking);
         $whatsappLink = WhatsAppLink::forBooking($booking);
         $whatsappMessage = WhatsAppLink::messageFor($booking);
+        $paymentMethods = PaymentMethod::cases();
 
-        return view('admin.bookings.show', compact('booking', 'hasDateConflict', 'otherBookingsOnDate', 'canDecide', 'whatsappLink', 'whatsappMessage'));
+        return view('admin.bookings.show', compact('booking', 'hasDateConflict', 'otherBookingsOnDate', 'canDecide', 'whatsappLink', 'whatsappMessage', 'paymentMethods'));
     }
 
     /**

@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Enums\BalanceStatus;
 use App\Enums\BookingSource;
 use App\Enums\BookingStatus;
 use App\Enums\EventType;
+use App\Enums\PaymentStatus;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Database\Factories\BookingFactory;
@@ -116,6 +118,68 @@ class Booking extends Model
     }
 
     /**
+     * Every payment, oldest first, including voided ones.
+     *
+     * @return HasMany<Payment, $this>
+     */
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class)->orderBy('received_at')->orderBy('id');
+    }
+
+    /**
+     * Total of confirmed payments, in UGX. Uses the `amount_paid` value from
+     * withAmountPaid() when the query loaded it, so lists avoid N+1 queries.
+     */
+    public function amountPaid(): int
+    {
+        if (array_key_exists('amount_paid', $this->attributes)) {
+            return (int) $this->attributes['amount_paid'];
+        }
+
+        if ($this->relationLoaded('payments')) {
+            return (int) $this->payments->where('status', PaymentStatus::Confirmed)->sum('amount');
+        }
+
+        return (int) $this->payments()->confirmed()->sum('amount');
+    }
+
+    /**
+     * Quote minus confirmed payments; null until a quote is set.
+     */
+    public function balance(): ?int
+    {
+        return $this->quoted_amount === null ? null : $this->quoted_amount - $this->amountPaid();
+    }
+
+    /**
+     * Unpaid, part paid or paid in full; null until a quote is set.
+     */
+    public function balanceStatus(): ?BalanceStatus
+    {
+        return $this->quoted_amount === null ? null : BalanceStatus::for($this->quoted_amount, $this->amountPaid());
+    }
+
+    /**
+     * Whether staff may record a payment: approved and quoted (spec §6.4).
+     */
+    public function acceptsPayments(): bool
+    {
+        return $this->status === BookingStatus::Approved && $this->quoted_amount !== null;
+    }
+
+    /**
+     * Load the confirmed payment total as `amount_paid`.
+     *
+     * @param  Builder<Booking>  $query
+     */
+    #[Scope]
+    protected function withAmountPaid(Builder $query): void
+    {
+        $query->withSum(['payments as amount_paid' => fn (Builder $payments) => $payments->confirmed()], 'amount');
+    }
+
+    /**
      * Notification attempts about this booking, newest first.
      *
      * @return HasMany<NotificationLog, $this>
@@ -133,6 +197,6 @@ class Booking extends Model
     #[Scope]
     protected function approved(Builder $query): void
     {
-        $query->where('status', BookingStatus::Approved);
+        $query->where($query->qualifyColumn('status'), BookingStatus::Approved);
     }
 }

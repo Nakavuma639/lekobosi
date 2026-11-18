@@ -7,12 +7,14 @@ use App\Enums\NotificationStatus;
 use App\Models\Booking;
 use App\Models\ContactMessage;
 use App\Models\NotificationLog;
+use App\Models\Payment;
 use App\Notifications\BookingApproved;
 use App\Notifications\BookingReceived;
 use App\Notifications\BookingRejected;
 use App\Notifications\LoggedNotification;
 use App\Notifications\NewBookingSubmitted;
 use App\Notifications\NewContactMessage;
+use App\Notifications\PaymentRecorded;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Throwable;
@@ -54,6 +56,18 @@ class NotificationDispatcher
             ),
             BookingStatus::Pending => null,
         };
+    }
+
+    /**
+     * Staff recorded a payment: tell the customer the amount, receipt number and balance.
+     */
+    public function paymentRecorded(Payment $payment, int $amountPaidToDate, int $balanceRemaining): void
+    {
+        $this->sendToCustomer(
+            new PaymentRecorded($payment, $amountPaidToDate, $balanceRemaining),
+            NotificationLog::EVENT_PAYMENT_RECORDED,
+            $payment->booking,
+        );
     }
 
     /**

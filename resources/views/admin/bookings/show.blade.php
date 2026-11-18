@@ -59,12 +59,10 @@
                         <dt class="text-sm text-stone-500">Additional requirements</dt>
                         <dd class="mt-1 whitespace-pre-line text-stone-800">{{ $booking->extra_requirements ?? 'None given.' }}</dd>
                     </div>
-                    <div>
-                        <dt class="text-sm text-stone-500">Quote</dt>
-                        <dd class="mt-1 font-medium text-stone-900">{{ $booking->quoted_amount === null ? 'Not set yet' : 'UGX '.number_format($booking->quoted_amount) }}</dd>
-                    </div>
                 </dl>
             </section>
+
+            @include('admin.bookings.partials.payments')
 
             <section class="rounded-xl border border-stone-200 bg-white" aria-labelledby="customer-heading">
                 <h2 id="customer-heading" class="border-b border-stone-200 px-6 py-4 text-lg font-semibold">Customer</h2>

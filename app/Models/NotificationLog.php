@@ -23,6 +23,8 @@ class NotificationLog extends Model
 
     public const EVENT_CONTACT_MESSAGE = 'contact_message';
 
+    public const EVENT_PAYMENT_RECORDED = 'payment_recorded';
+
     public const RECIPIENT_ADMIN = 'admin';
 
     public const RECIPIENT_CUSTOMER = 'customer';
@@ -92,6 +94,7 @@ class NotificationLog extends Model
             self::EVENT_BOOKING_APPROVED => 'Approval email to the customer',
             self::EVENT_BOOKING_REJECTED => 'Rejection email to the customer',
             self::EVENT_CONTACT_MESSAGE => 'New message alert to the owner',
+            self::EVENT_PAYMENT_RECORDED => 'Payment receipt email to the customer',
             default => Str::headline($this->event),
         };
     }

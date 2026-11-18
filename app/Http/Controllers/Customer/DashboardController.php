@@ -15,6 +15,7 @@ class DashboardController extends Controller
     {
         $user = $request->user();
         $bookings = $user->bookings()
+            ->withAmountPaid()
             ->orderByDesc('event_date')
             ->orderByDesc('id')
             ->paginate(10);

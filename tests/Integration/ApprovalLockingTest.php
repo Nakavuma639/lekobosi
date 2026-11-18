@@ -6,7 +6,6 @@ use App\Exceptions\BookingDateFullException;
 use App\Models\Booking;
 use App\Models\User;
 use Illuminate\Database\QueryException;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 
 /*
@@ -16,40 +15,13 @@ use Illuminate\Support\Facades\DB;
  */
 
 beforeEach(function () {
-    $connection = [
-        'driver' => 'mysql',
-        'host' => env('MYSQL_TEST_HOST', '127.0.0.1'),
-        'port' => env('MYSQL_TEST_PORT', '3306'),
-        'database' => env('MYSQL_TEST_DATABASE', 'lehobothweb_db_testing'),
-        'username' => env('MYSQL_TEST_USERNAME', 'root'),
-        'password' => env('MYSQL_TEST_PASSWORD', ''),
-        'charset' => 'utf8mb4',
-        'collation' => 'utf8mb4_unicode_ci',
-        'prefix' => '',
-    ];
-
-    config()->set('database.connections.mysql_lock_test', $connection);
-    config()->set('database.connections.mysql_lock_test_other', $connection);
-
-    try {
-        DB::connection('mysql_lock_test')->getPdo();
-    } catch (Throwable) {
-        $this->markTestSkipped('MySQL test database is not reachable; start MySQL in XAMPP to run the locking tests.');
-    }
-
-    config()->set('database.default', 'mysql_lock_test');
-    DB::purge('mysql_lock_test');
-    Artisan::call('migrate:fresh', ['--database' => 'mysql_lock_test', '--force' => true]);
+    useMysqlLockingDatabase($this);
 
     $this->travelTo('2026-11-18 10:00:00');
     $this->admin = User::factory()->admin()->create();
 });
 
-afterEach(function () {
-    DB::connection('mysql_lock_test_other')->rollBack();
-    DB::purge('mysql_lock_test_other');
-    DB::purge('mysql_lock_test');
-});
+afterEach(fn () => closeMysqlLockingConnections());
 
 it('waits for the date lock held by another approval instead of reading stale data', function () {
     $first = Booking::factory()->on('2026-12-12')->create();

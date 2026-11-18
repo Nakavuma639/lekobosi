@@ -28,15 +28,23 @@
                 @else
                     <ul class="divide-y divide-stone-200">
                         @foreach ($bookings as $booking)
-                            <li class="flex flex-wrap items-center justify-between gap-4 px-6 py-5">
-                                <div>
-                                    <p class="font-medium text-stone-900">{{ $booking->event_type->label() }} &middot; {{ $booking->event_date->format('j M Y') }}</p>
-                                    <p class="mt-1 text-sm text-stone-500">
-                                        <span class="font-mono tracking-wide">{{ $booking->reference }}</span>
-                                        &middot; {{ $booking->event_location }} &middot; {{ number_format($booking->guest_count) }} guests
-                                    </p>
-                                </div>
-                                <x-booking-status :status="$booking->status" />
+                            <li>
+                                <a href="{{ route('customer.bookings.show', $booking) }}" class="flex flex-wrap items-center justify-between gap-4 px-6 py-5 hover:bg-stone-50">
+                                    <div>
+                                        <p class="font-medium text-stone-900">{{ $booking->event_type->label() }} &middot; {{ $booking->event_date->format('j M Y') }}</p>
+                                        <p class="mt-1 text-sm text-stone-500">
+                                            <span class="font-mono tracking-wide">{{ $booking->reference }}</span>
+                                            &middot; {{ $booking->event_location }} &middot; {{ number_format($booking->guest_count) }} guests
+                                        </p>
+                                        @if ($booking->quoted_amount !== null)
+                                            <p class="mt-1 text-sm text-stone-700">
+                                                Paid {{ \App\Support\Money::format($booking->amountPaid()) }} of {{ \App\Support\Money::format($booking->quoted_amount) }}
+                                                &middot; <span class="font-semibold">Balance {{ \App\Support\Money::format($booking->balance()) }}</span>
+                                            </p>
+                                        @endif
+                                    </div>
+                                    <x-booking-status :status="$booking->status" />
+                                </a>
                             </li>
                         @endforeach
                     </ul>

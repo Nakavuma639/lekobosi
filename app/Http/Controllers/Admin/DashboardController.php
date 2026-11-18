@@ -38,7 +38,8 @@ class DashboardController extends Controller
             ->get();
 
         $unreadMessages = ContactMessage::query()->unread()->count();
+        $outstandingBalance = $statistics->paymentTotals()['outstanding'];
 
-        return view('admin.dashboard', compact('user', 'totals', 'pendingBookings', 'conflictDates', 'upcomingBookings', 'unreadMessages'));
+        return view('admin.dashboard', compact('user', 'totals', 'pendingBookings', 'conflictDates', 'upcomingBookings', 'unreadMessages', 'outstandingBalance'));
     }
 }

@@ -4,6 +4,7 @@
         ? [
             ['route' => 'admin.dashboard', 'label' => 'Dashboard'],
             ['route' => 'admin.bookings.index', 'label' => 'Bookings', 'active' => 'admin.bookings.*'],
+            ['route' => 'admin.payments.index', 'label' => 'Payments'],
             ['route' => 'admin.calendar', 'label' => 'Calendar'],
             ['route' => 'admin.messages.index', 'label' => 'Messages', 'active' => 'admin.messages.*'],
         ]

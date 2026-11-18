@@ -60,6 +60,12 @@ Findings from Step 0 (spec §10) and every frontend ↔ spec mismatch. Rule: **f
 | Messages inbox (`unread=1`) | `/admin/messages` | `admin.messages.index` | `role:admin,staff` + policy |
 | Read a message | `/admin/messages/{id}` | `admin.messages.show` | `role:admin,staff` + policy |
 | Mark as read | `PATCH /admin/messages/{id}/read` | `admin.messages.read` | `role:admin` + policy |
+| Set / change quote | `PATCH /admin/bookings/{reference}/quote` | `admin.bookings.quote.update` | `role:admin,staff` + policy |
+| Record payment | `POST /admin/bookings/{reference}/payments` | `admin.bookings.payments.store` | `role:admin,staff` + policy |
+| Payments and Balances (`balance`, `outstanding`, `from`, `to`) | `/admin/payments` | `admin.payments.index` | `role:admin,staff` + policy |
+| Printable receipt | `/admin/payments/{receipt_number}/receipt` | `admin.payments.receipt` | `role:admin,staff` + policy |
+| Void payment | `POST /admin/payments/{receipt_number}/void` | `admin.payments.void` | `role:admin` + policy |
+| Customer booking detail (balance, payments) | `/account/bookings/{reference}` | `customer.bookings.show` | owner only; others get 404 |
 
 ## 4. Forms — exact field names
 
@@ -107,12 +113,10 @@ Also on the form:
 
 | Where | Placeholder | Phase |
 |---|---|---|
-| Admin dashboard | total outstanding balance tile | 7 |
-| Customer dashboard | quote, paid and balance per booking (the booking list itself is live) | 7 |
 
 ## 6. UI gaps (in the spec, no screen yet)
 
-Payments & Balances · printable receipts · reports · staff phone/walk-in booking entry · editing booking details · conflict attempts · staff account management. These are built as Breeze-styled admin pages in their phases. (The booking detail page, approve/reject and the calendar were built in Phase 4.)
+Reports · staff phone/walk-in booking entry · editing booking details · conflict attempts · staff account management. These are built as Breeze-styled admin pages in their phases. (The booking detail page, approve/reject and the calendar were built in Phase 4.)
 
 ## 7. Open questions (spec §13) — defaults in use
 
@@ -138,7 +142,20 @@ Configurable in `.env` / `config/lekobosi.php`: `MAX_EVENTS_PER_DAY=1`, `MIN_LEA
   - In production, one cron entry `* * * * * php artisan schedule:run` drains the queue every minute (`routes/console.php`).
 - **WhatsApp:** the booking page has a "Send on WhatsApp" button (wa.me with a pre-written message for the current status). Templates live in `lang/en/whatsapp.php`. Automatic WhatsApp messages are **not** built; they need a WhatsApp Business API account.
 
-## 9. Environment notes
+## 9. Payments (Phase 7)
+
+- **Recording only, no online payment** (spec §2.2). Staff record cash, MTN MoMo, Airtel Money, bank transfer or other. A transaction reference is required for mobile money and bank transfers.
+- **Money and balances:**
+  - Amounts are whole UGX, and inputs accept "4,500,000".
+  - Amount paid and balance are **calculated** from confirmed payments, never stored.
+  - Overpayment is refused, and the quote can't be lowered below what's already paid.
+- **Concurrency:** each payment locks the booking row, so two staff can't together exceed the quote (`tests/Integration/PaymentLockingTest.php`).
+- **Receipts:** numbered `RCT-YYYY-NNNNN`, sequential. **Assumption:** the count restarts each calendar year. A unique index plus retry stops duplicates when two payments are saved at once.
+- **Voiding:** owner only, with a reason. The row is kept and the balance restored. Payments can never be deleted.
+- **Cancelled bookings with payments** (owner's decision, 2026-11-18): the payments stay recorded and any refund is settled with the customer outside the system. The booking page and the Payments screen show this money separately ("Paid on cancelled bookings").
+- **Customer email:** sent on each payment, with the receipt number and the totals **as at that payment**.
+
+## 10. Environment notes
 
 - Laravel 13 needs PHP ≥ 8.3. XAMPP ships PHP 8.2, so artisan/composer/tests run on Herd's PHP 8.5; XAMPP provides **MariaDB 10.4 only**.
 - Run `npm run build` (or `npm run dev`) after view changes. Pages load assets through Vite.

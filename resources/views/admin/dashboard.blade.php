@@ -17,7 +17,7 @@
     <div class="mx-auto max-w-7xl space-y-8 px-4 py-10 sm:px-6 lg:px-8">
         <section aria-labelledby="totals-heading">
             <h2 id="totals-heading" class="sr-only">Booking totals</h2>
-            <dl class="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
+            <dl class="grid grid-cols-2 gap-4 md:grid-cols-4">
                 @foreach ([
                     ['label' => 'Total bookings', 'value' => $totals['total'], 'href' => route('admin.bookings.index')],
                     ['label' => 'Awaiting decision', 'value' => $totals['pending'], 'href' => route('admin.bookings.index', ['status' => 'pending']), 'highlight' => $totals['pending'] > 0],
@@ -25,14 +25,16 @@
                     ['label' => 'Rejected', 'value' => $totals['rejected'], 'href' => route('admin.bookings.index', ['status' => 'rejected'])],
                     ['label' => 'Events in the next 30 days', 'value' => $totals['upcoming_30_days'], 'href' => route('admin.calendar')],
                     ['label' => 'Unread messages', 'value' => $unreadMessages, 'href' => route('admin.messages.index', ['unread' => 1]), 'highlight' => $unreadMessages > 0],
+                    ['label' => 'Outstanding balance', 'value' => $outstandingBalance, 'href' => route('admin.payments.index', ['outstanding' => 1]), 'money' => true, 'wide' => true],
                 ] as $tile)
                     <a href="{{ $tile['href'] }}" @class([
                         'rounded-xl border bg-white p-5 transition hover:border-brand-300',
+                        'col-span-2' => $tile['wide'] ?? false,
                         'border-saffron-400 ring-1 ring-saffron-300' => $tile['highlight'] ?? false,
                         'border-stone-200' => ! ($tile['highlight'] ?? false),
                     ])>
                         <dt class="text-sm text-stone-500">{{ $tile['label'] }}</dt>
-                        <dd class="mt-2 font-display text-3xl font-semibold text-stone-900" data-testid="total-{{ \Illuminate\Support\Str::slug($tile['label']) }}">{{ number_format($tile['value']) }}</dd>
+                        <dd class="mt-2 font-display text-3xl font-semibold text-stone-900" data-testid="total-{{ \Illuminate\Support\Str::slug($tile['label']) }}">{{ ($tile['money'] ?? false) ? \App\Support\Money::format($tile['value']) : number_format($tile['value']) }}</dd>
                     </a>
                 @endforeach
             </dl>

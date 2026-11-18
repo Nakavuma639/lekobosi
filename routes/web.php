@@ -38,6 +38,7 @@ Route::middleware(['auth', 'verified', 'role:customer'])
     ->name('customer.')
     ->group(function () {
         Route::get('/', Customer\DashboardController::class)->name('dashboard');
+        Route::get('/bookings/{booking}', [Customer\BookingController::class, 'show'])->name('bookings.show');
     });
 
 Route::middleware(['auth', 'verified', 'role:admin,staff'])
@@ -50,6 +51,13 @@ Route::middleware(['auth', 'verified', 'role:admin,staff'])
         Route::patch('/bookings/{booking}/status', [Admin\BookingStatusController::class, 'update'])
             ->middleware('role:admin')
             ->name('bookings.status.update');
+        Route::patch('/bookings/{booking}/quote', [Admin\BookingQuoteController::class, 'update'])->name('bookings.quote.update');
+        Route::post('/bookings/{booking}/payments', [Admin\PaymentController::class, 'store'])->name('bookings.payments.store');
+        Route::get('/payments', Admin\PaymentsOverviewController::class)->name('payments.index');
+        Route::get('/payments/{payment}/receipt', [Admin\PaymentController::class, 'receipt'])->name('payments.receipt');
+        Route::post('/payments/{payment}/void', [Admin\PaymentController::class, 'void'])
+            ->middleware('role:admin')
+            ->name('payments.void');
         Route::get('/calendar', Admin\CalendarController::class)->name('calendar');
         Route::get('/messages', [Admin\ContactMessageController::class, 'index'])->name('messages.index');
         Route::get('/messages/{contactMessage}', [Admin\ContactMessageController::class, 'show'])->name('messages.show');

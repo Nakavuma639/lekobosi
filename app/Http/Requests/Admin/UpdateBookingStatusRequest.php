@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use App\Enums\BookingStatus;
 use App\Models\Booking;
+use App\Support\Money;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -54,7 +55,7 @@ class UpdateBookingStatusRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         if ($this->filled('quoted_amount')) {
-            $this->merge(['quoted_amount' => preg_replace('/[\s,]/', '', (string) $this->input('quoted_amount'))]);
+            $this->merge(['quoted_amount' => Money::cleanInput($this->input('quoted_amount'))]);
         }
     }
 }

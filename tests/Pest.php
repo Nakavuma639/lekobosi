@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 /*
@@ -48,7 +50,45 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+/**
+ * Point the test at a real MySQL database (row locks can't be tested on SQLite),
+ * with a second connection to play "another staff member". Skips the test when
+ * MySQL isn't running. Override the target with MYSQL_TEST_* env variables.
+ */
+function useMysqlLockingDatabase(TestCase $test): void
 {
-    // ..
+    $connection = [
+        'driver' => 'mysql',
+        'host' => env('MYSQL_TEST_HOST', '127.0.0.1'),
+        'port' => env('MYSQL_TEST_PORT', '3306'),
+        'database' => env('MYSQL_TEST_DATABASE', 'lehobothweb_db_testing'),
+        'username' => env('MYSQL_TEST_USERNAME', 'root'),
+        'password' => env('MYSQL_TEST_PASSWORD', ''),
+        'charset' => 'utf8mb4',
+        'collation' => 'utf8mb4_unicode_ci',
+        'prefix' => '',
+    ];
+
+    config()->set('database.connections.mysql_lock_test', $connection);
+    config()->set('database.connections.mysql_lock_test_other', $connection);
+
+    try {
+        DB::connection('mysql_lock_test')->getPdo();
+    } catch (Throwable) {
+        $test->markTestSkipped('MySQL test database is not reachable; start MySQL in XAMPP to run the locking tests.');
+    }
+
+    config()->set('database.default', 'mysql_lock_test');
+    DB::purge('mysql_lock_test');
+    Artisan::call('migrate:fresh', ['--database' => 'mysql_lock_test', '--force' => true]);
+}
+
+/**
+ * Roll back anything the "other staff member" connection left open.
+ */
+function closeMysqlLockingConnections(): void
+{
+    DB::connection('mysql_lock_test_other')->rollBack();
+    DB::purge('mysql_lock_test_other');
+    DB::purge('mysql_lock_test');
 }
