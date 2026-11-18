@@ -222,6 +222,15 @@ describe('confirmation page', function () {
     });
 });
 
+it('does not count availability checks against the booking submission limit', function () {
+    foreach (range(1, 6) as $check) {
+        $this->getJson(route('availability', ['month' => '2026-12']))->assertOk();
+    }
+
+    $this->post(route('bookings.store'), bookingForm())
+        ->assertRedirect(route('bookings.confirmation'));
+});
+
 it('throttles repeated submissions from the same visitor', function () {
     foreach (range(1, 5) as $attempt) {
         $this->post(route('bookings.store'), bookingForm(['date' => '2026-12-'.(10 + $attempt)]));

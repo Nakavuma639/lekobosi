@@ -13,11 +13,11 @@ Route::view('/about', 'site.about')->name('about');
 Route::view('/services', 'site.services')->name('services');
 Route::get('/booking', [BookingController::class, 'create'])->name('bookings.create');
 Route::post('/booking', [BookingController::class, 'store'])
-    ->middleware('throttle:5,1')
+    ->middleware('throttle:bookings')
     ->name('bookings.store');
 Route::get('/booking/submitted', [BookingController::class, 'confirmation'])->name('bookings.confirmation');
 Route::get('/availability', AvailabilityController::class)
-    ->middleware('throttle:60,1')
+    ->middleware('throttle:availability')
     ->name('availability');
 Route::view('/track-booking', 'site.track-booking')->name('bookings.track');
 Route::view('/contact', 'site.contact')->name('contact.create');
