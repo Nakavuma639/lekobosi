@@ -8,6 +8,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -45,6 +46,16 @@ class User extends Authenticatable
             'role' => UserRole::class,
             'is_active' => 'boolean',
         ];
+    }
+
+    /**
+     * Bookings made from this customer account.
+     *
+     * @return HasMany<Booking, $this>
+     */
+    public function bookings(): HasMany
+    {
+        return $this->hasMany(Booking::class);
     }
 
     /**

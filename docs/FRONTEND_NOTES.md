@@ -43,7 +43,9 @@ Findings from Step 0 (spec §10) and every frontend ↔ spec mismatch. Rule: **f
 | Home | `/` | `home` | public |
 | About | `/about` | `about` | public |
 | Services | `/services` | `services` | public |
-| Booking | `/booking` | `bookings.create` | public |
+| Booking | `/booking` (GET form, POST submit, 5/min) | `bookings.create`, `bookings.store` | public |
+| Booking received | `/booking/submitted` | `bookings.confirmation` | only straight after submitting (flashed reference) |
+| Full dates | `/availability?month=YYYY-MM` | `availability` | public JSON, dates only, 60/min |
 | Track booking | `/track-booking` | `bookings.track` | public |
 | Contact | `/contact` | `contact.create` | public |
 | Login / Register / Forgot password | `/login`, `/register`, `/forgot-password` | Breeze names | guest |
@@ -67,6 +69,12 @@ Findings from Step 0 (spec §10) and every frontend ↔ spec mismatch. Rule: **f
 | `details` | `extra_requirements` | max 2000 |
 
 **Event types** (from the client's dropdown, not the spec list): `Wedding`, `Introduction Ceremony`, `Birthday Party`, `Corporate Event`, `Conference`, `Other`.
+The options now carry `value` attributes from `App\Enums\EventType` (`wedding`, `introduction_ceremony`, `birthday_party`, `corporate_event`, `conference`, `other`), and the client's labels are still what customers see.
+
+Also on the form:
+- A hidden honeypot field `website` (must stay empty).
+- When the date changes, the form calls `GET /availability?month=YYYY-MM` and warns if the date is already full. The server checks again on submit.
+- Signed-in customers get their name, email and phone prefilled.
 
 ### Contact
 `name`, `email`, `phone` (optional), `subject` (optional, ≤150), `message` (10–2000). `phone` and `subject` were added to match the spec. The original form had no `name` attribute on the sender field.
@@ -84,11 +92,10 @@ Findings from Step 0 (spec §10) and every frontend ↔ spec mismatch. Rule: **f
 
 | Where | Placeholder | Phase |
 |---|---|---|
-| Booking form | `action="#"`, no reference shown | 2 |
 | Track page | no result area | 3 |
 | Admin dashboard | booking totals and booking table (empty state) | 4 |
 | Contact form | `action="#"` | 5 |
-| Customer dashboard | "My bookings" (empty state) | 7 |
+| Customer dashboard | quote, paid and balance per booking (the booking list itself is live) | 7 |
 
 ## 6. UI gaps (in the spec, no screen yet)
 

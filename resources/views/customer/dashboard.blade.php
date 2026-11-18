@@ -19,11 +19,31 @@
 
             <section class="rounded-xl border border-stone-200 bg-white" aria-labelledby="my-bookings-heading">
                 <h2 id="my-bookings-heading" class="border-b border-stone-200 px-6 py-4 text-lg font-semibold">My bookings</h2>
-                <div class="px-6 py-16 text-center">
-                    <p class="font-medium text-stone-800">You haven't made a booking yet</p>
-                    <p class="mx-auto mt-1 max-w-sm text-stone-500">Bookings you make while logged in appear here with their status, quote and balance.</p>
-                    <a href="{{ route('bookings.create') }}" class="btn-brand mt-6">Request a booking</a>
-                </div>
+                @if ($bookings->isEmpty())
+                    <div class="px-6 py-16 text-center">
+                        <p class="font-medium text-stone-800">You haven't made a booking yet</p>
+                        <p class="mx-auto mt-1 max-w-sm text-stone-500">Bookings you make while logged in appear here with their status, quote and balance.</p>
+                        <a href="{{ route('bookings.create') }}" class="btn-brand mt-6">Request a booking</a>
+                    </div>
+                @else
+                    <ul class="divide-y divide-stone-200">
+                        @foreach ($bookings as $booking)
+                            <li class="flex flex-wrap items-center justify-between gap-4 px-6 py-5">
+                                <div>
+                                    <p class="font-medium text-stone-900">{{ $booking->event_type->label() }} &middot; {{ $booking->event_date->format('j M Y') }}</p>
+                                    <p class="mt-1 text-sm text-stone-500">
+                                        <span class="font-mono tracking-wide">{{ $booking->reference }}</span>
+                                        &middot; {{ $booking->event_location }} &middot; {{ number_format($booking->guest_count) }} guests
+                                    </p>
+                                </div>
+                                <x-booking-status :status="$booking->status" />
+                            </li>
+                        @endforeach
+                    </ul>
+                    @if ($bookings->hasPages())
+                        <div class="border-t border-stone-200 px-6 py-4">{{ $bookings->links() }}</div>
+                    @endif
+                @endif
             </section>
         </div>
 

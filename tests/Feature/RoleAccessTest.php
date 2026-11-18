@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Booking;
 use App\Models\User;
 
 describe('dashboard redirect', function () {
@@ -66,5 +67,18 @@ describe('customer area', function () {
         $this->actingAs(User::factory()->admin()->create())
             ->get(route('customer.dashboard'))
             ->assertForbidden();
+    });
+});
+
+describe('customer bookings', function () {
+    it('lists only the signed-in customer\'s own bookings', function () {
+        $customer = User::factory()->create();
+        $mine = Booking::factory()->forCustomer($customer)->create();
+        $theirs = Booking::factory()->forCustomer(User::factory()->create())->create();
+
+        $this->actingAs($customer)
+            ->get(route('customer.dashboard'))
+            ->assertSee($mine->reference)
+            ->assertDontSee($theirs->reference);
     });
 });

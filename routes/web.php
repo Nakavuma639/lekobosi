@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Admin;
+use App\Http\Controllers\AvailabilityController;
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\Customer;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
@@ -9,7 +11,14 @@ use Illuminate\Support\Facades\Route;
 Route::view('/', 'site.home')->name('home');
 Route::view('/about', 'site.about')->name('about');
 Route::view('/services', 'site.services')->name('services');
-Route::view('/booking', 'site.booking')->name('bookings.create');
+Route::get('/booking', [BookingController::class, 'create'])->name('bookings.create');
+Route::post('/booking', [BookingController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('bookings.store');
+Route::get('/booking/submitted', [BookingController::class, 'confirmation'])->name('bookings.confirmation');
+Route::get('/availability', AvailabilityController::class)
+    ->middleware('throttle:60,1')
+    ->name('availability');
 Route::view('/track-booking', 'site.track-booking')->name('bookings.track');
 Route::view('/contact', 'site.contact')->name('contact.create');
 
