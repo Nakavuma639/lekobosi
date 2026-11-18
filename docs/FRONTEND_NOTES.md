@@ -111,8 +111,7 @@ Also on the form:
 
 ## 5. Placeholder data still to replace
 
-| Where | Placeholder | Phase |
-|---|---|---|
+None: every screen from the original frontend now shows live data (as of Phase 7).
 
 ## 6. UI gaps (in the spec, no screen yet)
 
