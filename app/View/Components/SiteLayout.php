@@ -11,11 +11,11 @@ class SiteLayout extends Component
      * Create a new component instance.
      *
      * @param  string  $title  The browser tab title.
-     * @param  'public'|'auth'|'admin'  $chrome  Which header and footer the page uses.
+     * @param  string|null  $description  Meta description for search results and link previews.
      */
     public function __construct(
         public string $title,
-        public string $chrome = 'public',
+        public ?string $description = null,
     ) {}
 
     /**

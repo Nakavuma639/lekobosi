@@ -5,25 +5,37 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>{{ $title ?? config('app.name', 'Lekobosi') }}</title>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
-        <!-- Scripts -->
+        @include('layouts.partials.fonts')
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans text-gray-900 antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
-            <div>
-                <a href="/">
-                    <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
-                </a>
+    <body class="bg-white font-sans text-stone-800 antialiased">
+        <div class="grid min-h-screen lg:grid-cols-2">
+            <div class="relative hidden overflow-hidden bg-stone-900 lg:block">
+                <img src="{{ asset('images/chef-platter.jpg') }}" alt="" class="absolute inset-0 h-full w-full object-cover opacity-70">
+                <div class="absolute inset-0 bg-gradient-to-t from-brand-900/90 via-brand-900/30 to-transparent"></div>
+                <div class="absolute bottom-0 p-12">
+                    <p class="max-w-md font-display text-3xl font-semibold leading-tight text-white">
+                        Book, track and pay for your event in one place.
+                    </p>
+                    <p class="mt-4 text-brand-100">Lekobosi Restaurant &amp; Outside Catering, Kyankwanzi</p>
+                </div>
             </div>
 
-            <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
-                {{ $slot }}
+            <div class="flex flex-col px-6 py-10 sm:px-12">
+                <a href="{{ route('home') }}" class="flex items-center gap-3 self-start">
+                    <x-application-logo class="h-14 w-14" />
+                    <span class="font-display text-lg font-semibold text-brand-700">Lekobosi</span>
+                </a>
+
+                <div class="flex flex-1 items-center">
+                    <div class="mx-auto w-full max-w-md py-12">
+                        {{ $slot }}
+                    </div>
+                </div>
+
+                <a href="{{ route('home') }}" class="self-start text-sm text-stone-500 hover:text-brand-700">Back to the website</a>
             </div>
         </div>
     </body>

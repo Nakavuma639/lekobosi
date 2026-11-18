@@ -1,39 +1,22 @@
-<x-site-layout title="Register | Lekobosi" chrome="auth">
-<section class="section">
-    <p class="eyebrow">JOIN LEKOBOSI</p>
-    <h2>Create Your Customer Account</h2>
+<x-guest-layout>
+    <x-slot:title>Create an account | Lekobosi</x-slot:title>
 
-    <form class="form-box small-box registerForm" name="registerForm" method="POST" action="{{ route('register') }}">
+    <h1 class="text-3xl font-bold">Create your account</h1>
+    <p class="mt-2 text-stone-600">Keep all your bookings, payments and balances in one place.</p>
+
+    <form method="POST" action="{{ route('register') }}" class="mt-8 space-y-5">
         @csrf
 
-        <label>Full Name
-            <input type="text" name="name" value="{{ old('name') }}" required autocomplete="name" placeholder="Enter your full name">
-        </label>
-        <x-site.field-error field="name" />
+        <x-site.field name="name" label="Full name" autocomplete="name" autofocus required />
+        <x-site.field name="email" label="Email address" type="email" autocomplete="username" required />
+        <x-site.field name="phone" label="Phone number" type="tel" autocomplete="tel" placeholder="0772 123456" required />
+        <x-site.field name="password" label="Password" type="password" autocomplete="new-password" minlength="8" hint="At least 8 characters." required />
+        <x-site.field name="password_confirmation" label="Confirm password" type="password" autocomplete="new-password" minlength="8" required />
 
-        <label>Email Address
-            <input type="email" name="email" value="{{ old('email') }}" required autocomplete="username" placeholder="Enter your email">
-        </label>
-        <x-site.field-error field="email" />
-
-        <label>Phone Number
-            <input type="tel" name="phone" value="{{ old('phone') }}" required autocomplete="tel" placeholder="Enter your phone number">
-        </label>
-        <x-site.field-error field="phone" />
-
-        <label>Password
-            <input type="password" minlength="8" name="password" required autocomplete="new-password" placeholder="At least 8 characters">
-        </label>
-        <x-site.field-error field="password" />
-
-        <label>Confirm Password
-            <input type="password" minlength="8" name="confirm_password" required autocomplete="new-password" placeholder="Re-enter password">
-        </label>
-        <x-site.field-error field="confirm_password" />
-
-        <button type="submit" class="button" style="margin-top: 7px;">Create Account</button>
-
-        <p>Already registered? <a href="{{ route('login') }}">Login here</a></p>
+        <button type="submit" class="btn-brand w-full py-3.5 text-base">Create account</button>
     </form>
-</section>
-</x-site-layout>
+
+    <p class="mt-8 text-sm text-stone-600">
+        Already have an account? <a href="{{ route('login') }}" class="font-semibold text-brand-700 hover:text-brand-800">Log in</a>
+    </p>
+</x-guest-layout>

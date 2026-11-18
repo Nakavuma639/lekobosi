@@ -1,0 +1,70 @@
+<?php
+
+use App\Models\User;
+
+describe('dashboard redirect', function () {
+    it('sends each role to its own dashboard', function (string $state, string $routeName) {
+        $user = User::factory()->{$state}()->create();
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertRedirect(route($routeName));
+    })->with([
+        'admin' => ['admin', 'admin.dashboard'],
+        'staff' => ['staff', 'admin.dashboard'],
+    ]);
+
+    it('sends customers to their account page', function () {
+        $this->actingAs(User::factory()->create())
+            ->get(route('dashboard'))
+            ->assertRedirect(route('customer.dashboard'));
+    });
+});
+
+describe('back-office area', function () {
+    it('redirects guests to the login page', function () {
+        $this->get(route('admin.dashboard'))->assertRedirect(route('login'));
+    });
+
+    it('returns 403 to customers', function () {
+        $this->actingAs(User::factory()->create())
+            ->get(route('admin.dashboard'))
+            ->assertForbidden();
+    });
+
+    it('lets admins and staff in', function (string $state) {
+        $this->actingAs(User::factory()->{$state}()->create())
+            ->get(route('admin.dashboard'))
+            ->assertOk()
+            ->assertSee('Booking requests');
+    })->with(['admin', 'staff']);
+
+    it('shows live account totals', function () {
+        User::factory()->count(3)->create();
+        User::factory()->staff()->create();
+        User::factory()->staff()->inactive()->create();
+
+        $this->actingAs(User::factory()->admin()->create())
+            ->get(route('admin.dashboard'))
+            ->assertViewHas('customerCount', 3)
+            ->assertViewHas('staffCount', 1);
+    });
+});
+
+describe('customer area', function () {
+    it('shows the customer their own details', function () {
+        $customer = User::factory()->create(['phone' => '+256772123456']);
+
+        $this->actingAs($customer)
+            ->get(route('customer.dashboard'))
+            ->assertOk()
+            ->assertSee($customer->email)
+            ->assertSee('+256772123456');
+    });
+
+    it('returns 403 to back-office users', function () {
+        $this->actingAs(User::factory()->admin()->create())
+            ->get(route('customer.dashboard'))
+            ->assertForbidden();
+    });
+});

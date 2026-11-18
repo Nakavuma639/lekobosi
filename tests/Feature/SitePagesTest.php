@@ -2,20 +2,19 @@
 
 use App\Models\User;
 
-it('renders each public page with the shared site stylesheet', function (string $routeName, string $heading) {
+it('renders each public page', function (string $routeName, string $heading) {
     $this->get(route($routeName))
         ->assertOk()
-        ->assertSee(asset('css/style.css'), escape: false)
         ->assertSee($heading);
 })->with([
-    'home' => ['home', 'Making Your Special'],
-    'about' => ['about', 'About Lekobosi'],
-    'services' => ['services', 'Our Catering Services'],
-    'booking' => ['bookings.create', 'Book Our Catering Services'],
-    'track booking' => ['bookings.track', 'Track Your Booking'],
-    'contact' => ['contact.create', 'Contact Lekobosi'],
-    'login' => ['login', 'Login to Your Account'],
-    'register' => ['register', 'Create Your Customer Account'],
+    'home' => ['home', 'Food for the days your family will talk about for years'],
+    'about' => ['about', 'A family kitchen that grew into an events team'],
+    'services' => ['services', 'What we cater'],
+    'booking' => ['bookings.create', 'Request a booking'],
+    'track booking' => ['bookings.track', 'Track your booking'],
+    'contact' => ['contact.create', 'Get in touch'],
+    'login' => ['login', 'Welcome back'],
+    'register' => ['register', 'Create your account'],
 ]);
 
 it('renders the booking form with the field names the backend reads', function () {
@@ -28,28 +27,32 @@ it('renders the booking form with the field names the backend reads', function (
         ], escape: false);
 });
 
-it('renders the contact form with a named sender field', function () {
+it('offers the event types from the client frontend', function () {
+    $this->get(route('bookings.create'))
+        ->assertSeeInOrder(['Wedding', 'Introduction Ceremony', 'Birthday Party', 'Corporate Event', 'Conference', 'Other']);
+});
+
+it('renders the contact form with every message field', function () {
     $this->get(route('contact.create'))
         ->assertOk()
-        ->assertSeeInOrder(['name="name"', 'name="email"', 'name="message"'], escape: false);
+        ->assertSeeInOrder(['name="name"', 'name="email"', 'name="phone"', 'name="subject"', 'name="message"'], escape: false);
 });
 
-it('renders the register form with the phone and confirm password fields', function () {
+it('renders the register form with Laravel confirmation field names', function () {
     $this->get(route('register'))
         ->assertOk()
-        ->assertSeeInOrder(['name="name"', 'name="email"', 'name="phone"', 'name="password"', 'name="confirm_password"'], escape: false);
+        ->assertSeeInOrder(['name="name"', 'name="email"', 'name="phone"', 'name="password"', 'name="password_confirmation"'], escape: false);
 });
 
-it('shows login and register links to guests', function () {
+it('shows a log in link to guests', function () {
     $this->get(route('home'))
         ->assertSee(route('login'))
-        ->assertSee(route('register'))
-        ->assertDontSee('>Logout<', escape: false);
+        ->assertDontSee('My dashboard');
 });
 
-it('shows a logout form instead of login links to signed-in users', function () {
+it('shows a dashboard link and log out button to signed-in users', function () {
     $this->actingAs(User::factory()->create())
         ->get(route('home'))
-        ->assertSee('>Logout<', escape: false)
-        ->assertDontSee('>Login<', escape: false);
+        ->assertSee('My dashboard')
+        ->assertSee('Log out');
 });

@@ -1,40 +1,24 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title }}</title>
-    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-    {{ $head ?? '' }}
+    <meta name="description" content="{{ $description ?? 'Lekobosi Restaurant and Outside Catering Services, Kyankwanzi, Uganda. Catering for weddings, introductions, parties and corporate events.' }}">
+
+    @include('layouts.partials.fonts')
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
-@if ($chrome === 'public')
+<body class="flex min-h-screen flex-col bg-white font-sans text-stone-700 antialiased">
+    <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-white focus:px-4 focus:py-2">Skip to content</a>
+
     @include('layouts.partials.site-header')
-@elseif ($chrome === 'admin')
-    @include('layouts.partials.admin-header')
-@endif
 
-{{ $slot }}
+    <main id="main" class="flex-1">
+        {{ $slot }}
+    </main>
 
-@if ($chrome === 'public')
     @include('layouts.partials.site-footer')
-@elseif ($chrome === 'auth')
-    <footer class="footer">
-        <img src="{{ asset('images/logo.jpeg') }}" alt="Lekobosi Logo" width="85">
-        <p>Kyankwanzi, Uganda</p>
-    </footer>
-@else
-    <footer class="footer">
-        <div class="footer-bottom">
-            <p>
-                &copy; 2026 Lekobosi Restaurant and Outside Catering Services.
-                All rights reserved.
-            </p>
-        </div>
-    </footer>
-@endif
-
-<script src="{{ asset('js/script.js') }}"></script>
 </body>
 </html>

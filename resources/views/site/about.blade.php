@@ -1,119 +1,79 @@
 <x-site-layout title="About Us | Lekobosi">
-<x-slot:head>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-</x-slot:head>
+    <x-site.page-header title="A family kitchen that grew into an events team">
+        Lekobosi Restaurant and Outside Catering Services is based in Kyankwanzi, Uganda.
+        We run a restaurant and take our kitchen to events across the region.
+    </x-site.page-header>
 
-<section class="section">
-    <p class="eyebrow">OUR STORY</p>
-    <h2>About Lekobosi</h2>
-
-    <p>
-        Lekobosi Restaurant and Outside Catering Services is based
-        in Kyankwanzi, Uganda. We provide catering services for
-        different events and special occasions.
-    </p>
-
-    <div class="cards">
-        <article class="card">
-            <h3>Our Mission</h3>
-            <p>To provide reliable catering services and a good customer experience.</p>
-        </article>
-
-        <article class="card">
-            <h3>Our Vision</h3>
-            <p>To become a trusted catering service provider for different occasions.</p>
-        </article>
-
-        <article class="card">
-            <h3>Our Commitment</h3>
-            <p>To improve booking follow-up, date confirmation and payment records.</p>
-        </article>
-    </div>
-</section>
-
-<section class="values">
-    <h2>Our Core Values</h2>
-
-    <div class="value-container">
-        <div class="value">
-            <i class="fa-solid fa-star"></i>
-            <h3>Quality</h3>
+    <section class="mx-auto grid max-w-7xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-5 lg:px-8">
+        <div class="lg:col-span-3">
+            <img src="{{ asset('images/chef-platter.jpg') }}" alt="A cook arranging a platter of food" class="aspect-[16/10] w-full rounded-2xl object-cover">
         </div>
-
-        <div class="value">
-            <i class="fa-solid fa-handshake"></i>
-            <h3>Integrity</h3>
+        <div class="space-y-10 lg:col-span-2">
+            <div>
+                <h2 class="text-2xl font-semibold">Our mission</h2>
+                <p class="mt-3 leading-relaxed text-stone-600">To provide reliable catering services and a good customer experience.</p>
+            </div>
+            <div>
+                <h2 class="text-2xl font-semibold">Our vision</h2>
+                <p class="mt-3 leading-relaxed text-stone-600">To become a trusted catering service provider for different occasions.</p>
+            </div>
+            <div>
+                <h2 class="text-2xl font-semibold">Our commitment</h2>
+                <p class="mt-3 leading-relaxed text-stone-600">To improve booking follow-up, date confirmation and payment records, so you always know where your event stands.</p>
+            </div>
         </div>
+    </section>
 
-        <div class="value">
-            <i class="fa-solid fa-heart"></i>
-            <h3>Customer Care</h3>
+    <section class="border-y border-stone-200 bg-stone-50">
+        <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+            <h2 class="text-2xl font-semibold">What we hold ourselves to</h2>
+            <dl class="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+                @foreach ([
+                    'Quality' => 'Fresh ingredients, cooked the same day they are served.',
+                    'Integrity' => 'Clear quotes and honest records of every payment.',
+                    'Customer care' => 'One point of contact from your first call to the last plate.',
+                    'Reliability' => 'We arrive early and we don\'t leave your guests waiting.',
+                ] as $value => $meaning)
+                    <div class="border-l-2 border-saffron-500 pl-5">
+                        <dt class="font-display text-lg font-semibold text-stone-900">{{ $value }}</dt>
+                        <dd class="mt-2 text-sm leading-relaxed text-stone-600">{{ $meaning }}</dd>
+                    </div>
+                @endforeach
+            </dl>
         </div>
+    </section>
 
-        <div class="value">
-            <i class="fa-solid fa-clock"></i>
-            <h3>Reliability</h3>
+    <section class="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+        <h2 class="text-3xl font-semibold">Meet the team</h2>
+        <div class="mt-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
+            @foreach ([
+                ['name' => 'Namagembe Harriet', 'role' => 'Head Chef and CEO', 'image' => 'images/team-harriet.jpg', 'phone' => '+256775847855', 'display' => '+256 775 847 855', 'email' => 'Maryharriet07@gmail.com'],
+                ['name' => 'Nakavuma Phionah', 'role' => 'Manager', 'image' => 'images/team-phionah.jpg', 'phone' => '+256775150674', 'display' => '+256 775 150 674', 'email' => 'phionahnakavuma1@gmail.com'],
+                ['name' => 'Kakumba Joseph', 'role' => 'Events Coordinator', 'image' => 'images/team-joseph.jpg', 'phone' => '+256753132455', 'display' => '+256 753 132 455', 'email' => null],
+            ] as $member)
+                <article>
+                    <img src="{{ asset($member['image']) }}" alt="{{ $member['name'] }}" class="aspect-[4/5] w-full rounded-2xl object-cover object-top" loading="lazy">
+                    <h3 class="mt-5 text-xl font-semibold">{{ $member['name'] }}</h3>
+                    <p class="text-brand-700">{{ $member['role'] }}</p>
+                    <ul class="mt-3 space-y-1 text-sm text-stone-600">
+                        <li><a href="tel:{{ $member['phone'] }}" class="hover:text-brand-700">{{ $member['display'] }}</a></li>
+                        <li><a href="https://wa.me/{{ ltrim($member['phone'], '+') }}" target="_blank" rel="noopener" class="hover:text-brand-700">WhatsApp</a></li>
+                        @if ($member['email'])
+                            <li><a href="mailto:{{ $member['email'] }}" class="break-all hover:text-brand-700">{{ $member['email'] }}</a></li>
+                        @endif
+                    </ul>
+                </article>
+            @endforeach
         </div>
-    </div>
-</section>
+    </section>
 
-<section class="team">
-    <h2>Meet Our Team</h2>
+    <section class="bg-stone-900">
+        <dl class="mx-auto grid max-w-7xl gap-8 px-4 py-14 text-center sm:grid-cols-3 sm:px-6 lg:px-8">
+            <div><dt class="text-sm text-stone-400">Events served</dt><dd class="mt-1 font-display text-4xl font-bold text-saffron-400">500+</dd></div>
+            <div><dt class="text-sm text-stone-400">Happy customers</dt><dd class="mt-1 font-display text-4xl font-bold text-saffron-400">1,000+</dd></div>
+            <div><dt class="text-sm text-stone-400">Years of experience</dt><dd class="mt-1 font-display text-4xl font-bold text-saffron-400">5+</dd></div>
+        </dl>
+    </section>
 
-    <div class="team-container">
-        <div class="member">
-            <img src="{{ asset('images/lekobosi/manager.jpeg') }}" alt="Manager">
-
-            <h3>Manager</h3>
-            <h4>Ms.Nakavuma Phionah</h4>
-
-            <p><i class="fa-solid fa-phone"></i> +256 775 150 674</p>
-
-            <p><i class="fa-solid fa-envelope"></i> phionahnakavuma1@gmail.com</p>
-
-            <p><i class="fa-brands fa-whatsapp"></i> +256 775 150 674</p>
-        </div>
-
-        <div class="member">
-            <img src="{{ asset('images/lekobosi/boss.jpeg') }}" alt="Head Chef">
-
-            <h3>Head Chef And CEO</h3>
-            <h4>Ms.Namagembe Harriet</h4>
-
-            <p><i class="fa-solid fa-phone"></i> +256 775 847 855</p>
-
-            <p><i class="fa-solid fa-envelope"></i> Maryharriet07@gmail.com</p>
-
-            <p><i class="fa-brands fa-whatsapp"></i> +256 775 847 855</p>
-        </div>
-
-        <div class="member">
-            <img src="{{ asset('images/lekobosi/cordinater.jpeg') }}" alt="Events Coordinator">
-
-            <h3>Events Coordinator</h3>
-            <h4>Mr.Kakumba Joseph</h4>
-
-            <p><i class="fa-solid fa-phone"></i> +256 753 132 455</p>
-
-            <p><i class="fa-brands fa-whatsapp"></i> +256 753 132 455</p>
-        </div>
-    </div>
-</section>
-
-<section class="stats">
-    <div>
-        <h1>500+</h1>
-        <p>Events Served</p>
-    </div>
-
-    <div>
-        <h1>1000+</h1>
-        <p>Happy Customers</p>
-    </div>
-
-    <div>
-        <h1>5+</h1>
-        <p>Years Experience</p>
-    </div>
-</section>
+    @include('site.partials.cta')
 </x-site-layout>

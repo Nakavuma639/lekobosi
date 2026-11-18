@@ -1,29 +1,39 @@
-<x-site-layout title="Login | Lekobosi" chrome="auth">
-<section class="section">
-    <p class="eyebrow">WELCOME BACK</p>
-    <h2>Login to Your Account</h2>
+<x-guest-layout>
+    <x-slot:title>Log in | Lekobosi</x-slot:title>
 
-    <form class="form-box small-box login-form" method="POST" action="{{ route('login') }}">
+    <h1 class="text-3xl font-bold">Welcome back</h1>
+    <p class="mt-2 text-stone-600">Log in to see your bookings and payments.</p>
+
+    @if (session('status'))
+        <p class="mt-6 rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{{ session('status') }}</p>
+    @endif
+
+    <form method="POST" action="{{ route('login') }}" class="mt-8 space-y-5">
         @csrf
 
-        @if (session('status'))
-            <p class="form-success">{{ session('status') }}</p>
-        @endif
+        <x-site.field name="email" label="Email address" type="email" autocomplete="username" autofocus required />
 
-        <label>Email Address
-            <input type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username" placeholder="Enter your email">
+        <div>
+            <div class="flex items-center justify-between">
+                <label for="password" class="field-label">Password</label>
+                <a href="{{ route('password.request') }}" class="text-sm font-medium text-brand-700 hover:text-brand-800">Forgot password?</a>
+            </div>
+            <input id="password" name="password" type="password" required autocomplete="current-password" class="field-input">
+            @error('password')
+                <p class="field-error">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <label for="remember_me" class="flex items-center gap-2 text-sm text-stone-600">
+            <input id="remember_me" type="checkbox" name="remember" class="rounded border-stone-300 text-brand-700 focus:ring-brand-600">
+            Keep me logged in on this device
         </label>
-        <x-site.field-error field="email" />
 
-        <label>Password
-            <input type="password" name="password" required autocomplete="current-password" placeholder="Enter your password">
-        </label>
-        <x-site.field-error field="password" />
-
-        <button type="submit" class="button" style="margin-top: 6px;">Login</button>
-
-        <p>New customer? <a href="{{ route('register') }}">Create an account</a></p>
-        <p>Staff member? Use your authorised staff account.</p>
+        <button type="submit" class="btn-brand w-full py-3.5 text-base">Log in</button>
     </form>
-</section>
-</x-site-layout>
+
+    <p class="mt-8 text-sm text-stone-600">
+        New here? <a href="{{ route('register') }}" class="font-semibold text-brand-700 hover:text-brand-800">Create a customer account</a>
+    </p>
+    <p class="mt-2 text-sm text-stone-500">Staff use the account the owner set up for them.</p>
+</x-guest-layout>

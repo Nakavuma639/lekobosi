@@ -39,3 +39,18 @@ test('users can logout', function () {
     $this->assertGuest();
     $response->assertRedirect('/');
 });
+
+test('disabled accounts cannot log in and get the generic error', function () {
+    $user = User::factory()->staff()->inactive()->create();
+
+    $this->post('/login', [
+        'email' => $user->email,
+        'password' => 'password',
+    ])->assertSessionHasErrors(['email' => trans('auth.failed')]);
+
+    $this->assertGuest();
+});
+
+test('the login page links to password reset', function () {
+    $this->get('/login')->assertSee(route('password.request'));
+});
