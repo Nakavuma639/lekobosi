@@ -66,6 +66,11 @@ Findings from Step 0 (spec §10) and every frontend ↔ spec mismatch. Rule: **f
 | Printable receipt | `/admin/payments/{receipt_number}/receipt` | `admin.payments.receipt` | `role:admin,staff` + policy |
 | Void payment | `POST /admin/payments/{receipt_number}/void` | `admin.payments.void` | `role:admin` + policy |
 | Customer booking detail (balance, payments) | `/account/bookings/{reference}` | `customer.bookings.show` | owner only; others get 404 |
+| New phone / walk-in booking | `/admin/bookings/create`, `POST /admin/bookings` | `admin.bookings.create`, `.store` | `role:admin,staff` + policy |
+| Edit a pending booking | `/admin/bookings/{reference}/edit`, `PATCH` | `admin.bookings.edit`, `.update` | `role:admin,staff` + policy (pending only) |
+| Reports (`from`, `to`, `format=csv`) | `/admin/reports/bookings`, `/admin/reports/payments` | `admin.reports.*` | view: admin, staff · CSV: admin |
+| Turned-away requests | `/admin/conflict-attempts` | `admin.conflict-attempts` | `role:admin` + policy |
+| Staff accounts | `/admin/staff` (+ create, enable/disable, resend password link) | `admin.staff.*` | `role:admin` + policy |
 
 ## 4. Forms — exact field names
 
@@ -115,7 +120,7 @@ None: every screen from the original frontend now shows live data (as of Phase 7
 
 ## 6. UI gaps (in the spec, no screen yet)
 
-Reports · staff phone/walk-in booking entry · editing booking details · conflict attempts · staff account management. These are built as Breeze-styled admin pages in their phases. (The booking detail page, approve/reject and the calendar were built in Phase 4.)
+None left: every spec screen now exists as a Breeze-styled admin page (Phases 4–8).
 
 ## 7. Open questions (spec §13) — defaults in use
 

@@ -2,15 +2,21 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\Bookings\SubmitBooking;
+use App\Actions\Bookings\UpdateBookingDetails;
 use App\Enums\BookingSource;
 use App\Enums\BookingStatus;
+use App\Enums\EventType;
 use App\Enums\PaymentMethod;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreStaffBookingRequest;
+use App\Http\Requests\Admin\UpdateBookingRequest;
 use App\Models\Booking;
 use App\Services\BookingAvailability;
 use App\Support\PhoneNumber;
 use App\Support\WhatsAppLink;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
@@ -65,6 +71,66 @@ class BookingController extends Controller
         $sources = BookingSource::cases();
 
         return view('admin.bookings.index', compact('bookings', 'filters', 'conflictDates', 'statuses', 'sources'));
+    }
+
+    /**
+     * Form for entering a phone or walk-in booking.
+     */
+    public function create(BookingAvailability $availability): View
+    {
+        Gate::authorize('create', Booking::class);
+
+        $booking = null;
+        $eventTypes = EventType::cases();
+        $sources = [BookingSource::Phone, BookingSource::WalkIn];
+        $earliestDate = $availability->earliestBookableDate()->toDateString();
+        $latestDate = $availability->latestBookableDate()->toDateString();
+
+        return view('admin.bookings.form', compact('booking', 'eventTypes', 'sources', 'earliestDate', 'latestDate'));
+    }
+
+    /**
+     * Store a booking taken by phone or at the counter.
+     */
+    public function store(StoreStaffBookingRequest $request, SubmitBooking $submitBooking): RedirectResponse
+    {
+        $booking = $submitBooking->handle(
+            details: $request->bookingDetails(),
+            customer: null,
+            source: $request->source(),
+            enteredBy: $request->user(),
+        );
+
+        return redirect()
+            ->route('admin.bookings.show', $booking)
+            ->with('status', "Booking {$booking->reference} created. Give the customer this reference so they can track it.");
+    }
+
+    /**
+     * Form for correcting a pending booking.
+     */
+    public function edit(Booking $booking, BookingAvailability $availability): View
+    {
+        Gate::authorize('update', $booking);
+
+        $eventTypes = EventType::cases();
+        $sources = [];
+        $earliestDate = $availability->earliestBookableDate()->toDateString();
+        $latestDate = $availability->latestBookableDate()->toDateString();
+
+        return view('admin.bookings.form', compact('booking', 'eventTypes', 'sources', 'earliestDate', 'latestDate'));
+    }
+
+    /**
+     * Save corrections to a pending booking.
+     */
+    public function update(UpdateBookingRequest $request, Booking $booking, UpdateBookingDetails $updateBookingDetails): RedirectResponse
+    {
+        $booking = $updateBookingDetails->handle($booking, $request->bookingDetails());
+
+        return redirect()
+            ->route('admin.bookings.show', $booking)
+            ->with('status', 'Booking details updated.');
     }
 
     /**

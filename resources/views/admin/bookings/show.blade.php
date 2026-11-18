@@ -15,7 +15,17 @@
                     <x-booking-status :status="$booking->status" />
                 </h1>
             </div>
-            <p class="text-sm text-stone-500">Received {{ $booking->created_at->format('j M Y, g:i a') }} &middot; {{ $booking->source->label() }}</p>
+            <div class="flex flex-wrap items-center gap-4">
+                <p class="text-sm text-stone-500">
+                    Received {{ $booking->created_at->format('j M Y, g:i a') }} &middot; {{ $booking->source->label() }}
+                    @if ($booking->creator)
+                        &middot; entered by {{ $booking->creator->name }}
+                    @endif
+                </p>
+                @can('update', $booking)
+                    <a href="{{ route('admin.bookings.edit', $booking) }}" class="btn-outline py-2">Edit details</a>
+                @endcan
+            </div>
         </div>
     </x-slot>
 

@@ -2,9 +2,12 @@
 
 namespace App\Providers;
 
+use App\Enums\UserRole;
+use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\DevCommands;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
@@ -24,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureRateLimiting();
+        $this->configureGates();
 
         DevCommands::withoutVendorCommands();
         DevCommands::withoutDefaultCommands();
@@ -34,6 +38,15 @@ class AppServiceProvider extends ServiceProvider
         // confirmation would sit in the jobs table and never be sent.
         DevCommands::artisan('queue:listen --tries=1 --timeout=0', 'queue');
         DevCommands::node('dev', 'vite');
+    }
+
+    /**
+     * Abilities that aren't about a single model (spec §6.5).
+     */
+    private function configureGates(): void
+    {
+        Gate::define('view-reports', fn (User $user) => $user->isBackOffice());
+        Gate::define('export-reports', fn (User $user) => $user->hasRole(UserRole::Admin));
     }
 
     /**

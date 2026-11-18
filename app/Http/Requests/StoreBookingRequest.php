@@ -140,7 +140,7 @@ class StoreBookingRequest extends FormRequest
 
         return [
             'customer_name' => $validated['fullname'],
-            'customer_email' => $validated['email'],
+            'customer_email' => ($validated['email'] ?? null) ?: null,
             'customer_phone' => $validated['phone'],
             'whatsapp_number' => $validated['whatsapp'] ?? $validated['phone'],
             'event_type' => EventType::from($validated['event_type']),

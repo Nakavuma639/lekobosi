@@ -47,7 +47,11 @@ Route::middleware(['auth', 'verified', 'role:admin,staff'])
     ->group(function () {
         Route::get('/', Admin\DashboardController::class)->name('dashboard');
         Route::get('/bookings', [Admin\BookingController::class, 'index'])->name('bookings.index');
+        Route::get('/bookings/create', [Admin\BookingController::class, 'create'])->name('bookings.create');
+        Route::post('/bookings', [Admin\BookingController::class, 'store'])->name('bookings.store');
         Route::get('/bookings/{booking}', [Admin\BookingController::class, 'show'])->name('bookings.show');
+        Route::get('/bookings/{booking}/edit', [Admin\BookingController::class, 'edit'])->name('bookings.edit');
+        Route::patch('/bookings/{booking}', [Admin\BookingController::class, 'update'])->name('bookings.update');
         Route::patch('/bookings/{booking}/status', [Admin\BookingStatusController::class, 'update'])
             ->middleware('role:admin')
             ->name('bookings.status.update');
@@ -59,6 +63,19 @@ Route::middleware(['auth', 'verified', 'role:admin,staff'])
             ->middleware('role:admin')
             ->name('payments.void');
         Route::get('/calendar', Admin\CalendarController::class)->name('calendar');
+        Route::get('/reports/bookings', [Admin\ReportController::class, 'bookings'])->name('reports.bookings');
+        Route::get('/reports/payments', [Admin\ReportController::class, 'payments'])->name('reports.payments');
+
+        Route::middleware('role:admin')->group(function () {
+            Route::get('/conflict-attempts', Admin\ConflictAttemptController::class)->name('conflict-attempts');
+            Route::get('/staff', [Admin\StaffController::class, 'index'])->name('staff.index');
+            Route::get('/staff/create', [Admin\StaffController::class, 'create'])->name('staff.create');
+            Route::post('/staff', [Admin\StaffController::class, 'store'])->name('staff.store');
+            Route::patch('/staff/{user}', [Admin\StaffController::class, 'update'])->name('staff.update');
+            Route::post('/staff/{user}/password-link', [Admin\StaffController::class, 'sendPasswordLink'])
+                ->middleware('throttle:6,1')
+                ->name('staff.password-link');
+        });
         Route::get('/messages', [Admin\ContactMessageController::class, 'index'])->name('messages.index');
         Route::get('/messages/{contactMessage}', [Admin\ContactMessageController::class, 'show'])->name('messages.show');
         Route::patch('/messages/{contactMessage}/read', [Admin\ContactMessageController::class, 'markAsRead'])

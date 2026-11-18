@@ -2,7 +2,15 @@
     <x-slot:title>Bookings | Lekobosi</x-slot:title>
 
     <x-slot name="header">
-        <h1 class="text-2xl font-semibold">Bookings</h1>
+        <div class="flex flex-wrap items-center justify-between gap-4">
+            <h1 class="text-2xl font-semibold">Bookings</h1>
+            <div class="flex flex-wrap gap-3">
+                @if (auth()->user()->hasRole(\App\Enums\UserRole::Admin))
+                    <a href="{{ route('admin.conflict-attempts') }}" class="btn-outline">Turned-away requests</a>
+                @endif
+                <a href="{{ route('admin.bookings.create') }}" class="btn-brand">New phone booking</a>
+            </div>
+        </div>
     </x-slot>
 
     <div class="mx-auto max-w-7xl space-y-6 px-4 py-10 sm:px-6 lg:px-8">

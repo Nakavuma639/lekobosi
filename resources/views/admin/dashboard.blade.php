@@ -8,8 +8,8 @@
                 <p class="mt-1 text-sm text-stone-500">{{ now()->format('l, j F Y') }}</p>
             </div>
             <div class="flex flex-wrap gap-3">
-                <a href="{{ route('admin.calendar') }}" class="btn-outline">Calendar</a>
-                <a href="{{ route('admin.bookings.index') }}" class="btn-brand">All bookings</a>
+                <a href="{{ route('admin.bookings.index') }}" class="btn-outline">All bookings</a>
+                <a href="{{ route('admin.bookings.create') }}" class="btn-brand">New phone booking</a>
             </div>
         </div>
     </x-slot>

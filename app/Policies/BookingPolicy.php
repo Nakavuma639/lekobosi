@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\BookingStatus;
 use App\Enums\UserRole;
 use App\Models\Booking;
 use App\Models\User;
@@ -26,6 +27,22 @@ class BookingPolicy
         return $user->isBackOffice() || ($booking->user_id !== null && $booking->user_id === $user->id)
             ? Response::allow()
             : Response::denyAsNotFound();
+    }
+
+    /**
+     * Owner and staff enter phone and walk-in bookings.
+     */
+    public function create(User $user): bool
+    {
+        return $user->isBackOffice();
+    }
+
+    /**
+     * Owner and staff correct a booking's details while it's still pending.
+     */
+    public function update(User $user, Booking $booking): bool
+    {
+        return $user->isBackOffice() && $booking->status === BookingStatus::Pending;
     }
 
     /**
