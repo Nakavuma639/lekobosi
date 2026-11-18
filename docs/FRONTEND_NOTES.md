@@ -56,6 +56,10 @@ Findings from Step 0 (spec §10) and every frontend ↔ spec mismatch. Rule: **f
 | Booking detail | `/admin/bookings/{reference}` | `admin.bookings.show` | `role:admin,staff` + policy |
 | Approve / reject / cancel | `PATCH /admin/bookings/{reference}/status` | `admin.bookings.status.update` | `role:admin` + policy `decide` |
 | Calendar (`month=YYYY-MM`, `pending=0/1`) | `/admin/calendar` | `admin.calendar` | `role:admin,staff` + policy |
+| Contact form submit | `POST /contact` | `contact.store` | public, 5/min (`contact` limiter) |
+| Messages inbox (`unread=1`) | `/admin/messages` | `admin.messages.index` | `role:admin,staff` + policy |
+| Read a message | `/admin/messages/{id}` | `admin.messages.show` | `role:admin,staff` + policy |
+| Mark as read | `PATCH /admin/messages/{id}/read` | `admin.messages.read` | `role:admin` + policy |
 
 ## 4. Forms — exact field names
 
@@ -103,13 +107,12 @@ Also on the form:
 
 | Where | Placeholder | Phase |
 |---|---|---|
-| Admin dashboard | unread messages and total outstanding balance tiles | 5, 7 |
-| Contact form | `action="#"` | 5 |
+| Admin dashboard | total outstanding balance tile | 7 |
 | Customer dashboard | quote, paid and balance per booking (the booking list itself is live) | 7 |
 
 ## 6. UI gaps (in the spec, no screen yet)
 
-Payments & Balances · printable receipts · reports · staff phone/walk-in booking entry · editing booking details · conflict attempts · contact messages inbox · staff account management. These are built as Breeze-styled admin pages in their phases. (The booking detail page, approve/reject and the calendar were built in Phase 4.)
+Payments & Balances · printable receipts · reports · staff phone/walk-in booking entry · editing booking details · conflict attempts · staff account management. These are built as Breeze-styled admin pages in their phases. (The booking detail page, approve/reject and the calendar were built in Phase 4.)
 
 ## 7. Open questions (spec §13) — defaults in use
 

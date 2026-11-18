@@ -17,13 +17,14 @@
     <div class="mx-auto max-w-7xl space-y-8 px-4 py-10 sm:px-6 lg:px-8">
         <section aria-labelledby="totals-heading">
             <h2 id="totals-heading" class="sr-only">Booking totals</h2>
-            <dl class="grid grid-cols-2 gap-4 lg:grid-cols-5">
+            <dl class="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
                 @foreach ([
                     ['label' => 'Total bookings', 'value' => $totals['total'], 'href' => route('admin.bookings.index')],
                     ['label' => 'Awaiting decision', 'value' => $totals['pending'], 'href' => route('admin.bookings.index', ['status' => 'pending']), 'highlight' => $totals['pending'] > 0],
                     ['label' => 'Approved', 'value' => $totals['approved'], 'href' => route('admin.bookings.index', ['status' => 'approved'])],
                     ['label' => 'Rejected', 'value' => $totals['rejected'], 'href' => route('admin.bookings.index', ['status' => 'rejected'])],
                     ['label' => 'Events in the next 30 days', 'value' => $totals['upcoming_30_days'], 'href' => route('admin.calendar')],
+                    ['label' => 'Unread messages', 'value' => $unreadMessages, 'href' => route('admin.messages.index', ['unread' => 1]), 'highlight' => $unreadMessages > 0],
                 ] as $tile)
                     <a href="{{ $tile['href'] }}" @class([
                         'rounded-xl border bg-white p-5 transition hover:border-brand-300',

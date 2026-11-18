@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\BookingStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\ContactMessage;
 use App\Services\BookingAvailability;
 use App\Services\BookingStatistics;
 use Illuminate\Http\Request;
@@ -36,6 +37,8 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-        return view('admin.dashboard', compact('user', 'totals', 'pendingBookings', 'conflictDates', 'upcomingBookings'));
+        $unreadMessages = ContactMessage::query()->unread()->count();
+
+        return view('admin.dashboard', compact('user', 'totals', 'pendingBookings', 'conflictDates', 'upcomingBookings', 'unreadMessages'));
     }
 }

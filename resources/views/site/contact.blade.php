@@ -26,10 +26,26 @@
             </dl>
         </div>
 
-        {{-- Wired to contact.store in Phase 5. --}}
-        <form action="#" method="post" class="space-y-6 rounded-2xl border border-stone-200 p-6 sm:p-10 lg:col-span-3" novalidate>
+        <form action="{{ route('contact.store') }}" method="post" class="space-y-6 rounded-2xl border border-stone-200 p-6 sm:p-10 lg:col-span-3" novalidate>
             @csrf
             <h2 class="text-2xl font-semibold">Send us a message</h2>
+
+            @if (session('contact_sent'))
+                <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4" role="status">
+                    <p class="font-medium text-emerald-900">{{ session('contact_sent') }}</p>
+                    <p class="mt-1 text-sm text-emerald-800">For anything urgent, call or WhatsApp us on 0775 847 855.</p>
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <p class="rounded-xl border border-brand-200 bg-brand-50 px-5 py-4 font-medium text-brand-800" role="alert">Please check the highlighted fields.</p>
+            @endif
+
+            {{-- Honeypot: hidden from people, often filled in by spam bots. --}}
+            <div class="hidden" aria-hidden="true">
+                <label for="contact_website">Leave this field empty</label>
+                <input type="text" id="contact_website" name="website" tabindex="-1" autocomplete="off">
+            </div>
 
             <div class="grid gap-6 sm:grid-cols-2">
                 <x-site.field name="name" label="Your name" autocomplete="name" required />

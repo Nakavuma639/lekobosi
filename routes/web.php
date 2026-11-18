@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin;
 use App\Http\Controllers\AvailabilityController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\Customer;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
@@ -23,7 +24,10 @@ Route::get('/availability', AvailabilityController::class)
 Route::get('/track-booking', TrackBookingController::class)
     ->middleware('throttle:tracking')
     ->name('bookings.track');
-Route::view('/contact', 'site.contact')->name('contact.create');
+Route::get('/contact', [ContactController::class, 'create'])->name('contact.create');
+Route::post('/contact', [ContactController::class, 'store'])
+    ->middleware('throttle:contact')
+    ->name('contact.store');
 
 Route::get('/dashboard', DashboardController::class)
     ->middleware(['auth', 'verified'])
@@ -47,6 +51,11 @@ Route::middleware(['auth', 'verified', 'role:admin,staff'])
             ->middleware('role:admin')
             ->name('bookings.status.update');
         Route::get('/calendar', Admin\CalendarController::class)->name('calendar');
+        Route::get('/messages', [Admin\ContactMessageController::class, 'index'])->name('messages.index');
+        Route::get('/messages/{contactMessage}', [Admin\ContactMessageController::class, 'show'])->name('messages.show');
+        Route::patch('/messages/{contactMessage}/read', [Admin\ContactMessageController::class, 'markAsRead'])
+            ->middleware('role:admin')
+            ->name('messages.read');
     });
 
 Route::middleware('auth')->group(function () {
