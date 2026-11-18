@@ -186,6 +186,43 @@
                 @endif
             </section>
 
+            <section class="rounded-xl border border-stone-200 bg-white p-6" aria-labelledby="whatsapp-heading">
+                <h2 id="whatsapp-heading" class="text-lg font-semibold">WhatsApp the customer</h2>
+                <p class="mt-2 text-sm text-stone-600">Opens WhatsApp with this message ready to send:</p>
+                <blockquote class="mt-3 rounded-lg bg-stone-50 p-3 text-sm leading-relaxed text-stone-700">{{ $whatsappMessage }}</blockquote>
+                <a href="{{ $whatsappLink }}" target="_blank" rel="noopener" class="btn mt-4 w-full bg-[#25D366] text-stone-900 hover:bg-[#1ebe5b]">Send on WhatsApp</a>
+            </section>
+
+            <section class="rounded-xl border border-stone-200 bg-white p-6" aria-labelledby="notifications-heading">
+                <h2 id="notifications-heading" class="text-lg font-semibold">Emails</h2>
+                @if ($booking->notificationLogs->isEmpty())
+                    <p class="mt-3 text-sm text-stone-600">No emails have been sent about this booking.</p>
+                @else
+                    <ul class="mt-3 space-y-3">
+                        @foreach ($booking->notificationLogs as $log)
+                            <li class="text-sm">
+                                <div class="flex items-start justify-between gap-3">
+                                    <span class="text-stone-800">{{ $log->eventLabel() }}</span>
+                                    <span @class([
+                                        'shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold',
+                                        'bg-emerald-100 text-emerald-800' => $log->status === \App\Enums\NotificationStatus::Sent,
+                                        'bg-saffron-100 text-saffron-700' => $log->status === \App\Enums\NotificationStatus::Queued,
+                                        'bg-brand-100 text-brand-800' => $log->status === \App\Enums\NotificationStatus::Failed,
+                                        'bg-stone-100 text-stone-600' => $log->status === \App\Enums\NotificationStatus::Skipped,
+                                    ])>{{ $log->status->label() }}</span>
+                                </div>
+                                <p class="text-xs text-stone-500">{{ ($log->sent_at ?? $log->created_at)->format('j M Y, g:i a') }}</p>
+                                @if ($log->status === \App\Enums\NotificationStatus::Skipped && $log->error)
+                                    <p class="text-xs text-stone-500">{{ $log->error }}</p>
+                                @elseif ($log->status === \App\Enums\NotificationStatus::Failed)
+                                    <p class="text-xs text-brand-700">Could not be delivered. Use WhatsApp or call the customer instead.</p>
+                                @endif
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+            </section>
+
             <section class="rounded-xl border border-stone-200 bg-white p-6" aria-labelledby="same-date-heading">
                 <h2 id="same-date-heading" class="text-lg font-semibold">Same date</h2>
                 @if ($otherBookingsOnDate->isEmpty())

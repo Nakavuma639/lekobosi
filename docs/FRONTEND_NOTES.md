@@ -120,7 +120,25 @@ Configurable in `.env` / `config/lekobosi.php`: `MAX_EVENTS_PER_DAY=1`, `MIN_LEA
 
 `ADMIN_NOTIFY_EMAIL` points to the developer's address for testing. Switch it to the owner's before handover.
 
-## 8. Environment notes
+## 8. Notifications (Phase 6)
+
+| Event | Recipient | Channel |
+|---|---|---|
+| `booking_submitted` | Owner (`ADMIN_NOTIFY_EMAIL`) | email |
+| `booking_received` | Customer, with the reference | email |
+| `booking_approved` | Customer, with the quote if set | email |
+| `booking_rejected` | Customer, with the reason (cancellation wording if it was approved) | email |
+| `contact_message` | Owner | email |
+
+- **Delivery:** queued (`database` queue), sent only after the transaction commits, 3 tries.
+- **Logging:** every attempt is recorded in `notification_logs` (queued → sent / failed / skipped) and shown on the booking page.
+- **Failures:** a failure never affects the booking or decision. Errors stay in `notification_logs`; application logs get no addresses.
+- **Running the queue:**
+  - Locally, `composer run dev` already runs `queue:listen`. Otherwise run `php artisan queue:work`.
+  - In production, one cron entry `* * * * * php artisan schedule:run` drains the queue every minute (`routes/console.php`).
+- **WhatsApp:** the booking page has a "Send on WhatsApp" button (wa.me with a pre-written message for the current status). Templates live in `lang/en/whatsapp.php`. Automatic WhatsApp messages are **not** built; they need a WhatsApp Business API account.
+
+## 9. Environment notes
 
 - Laravel 13 needs PHP ≥ 8.3. XAMPP ships PHP 8.2, so artisan/composer/tests run on Herd's PHP 8.5; XAMPP provides **MariaDB 10.4 only**.
 - Run `npm run build` (or `npm run dev`) after view changes. Pages load assets through Vite.

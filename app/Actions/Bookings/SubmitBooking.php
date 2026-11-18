@@ -10,6 +10,7 @@ use App\Models\BookingConflictAttempt;
 use App\Models\BookingStatusHistory;
 use App\Models\User;
 use App\Services\BookingAvailability;
+use App\Services\NotificationDispatcher;
 use App\Support\BookingReference;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -21,7 +22,10 @@ class SubmitBooking
 {
     private const MAX_REFERENCE_ATTEMPTS = 5;
 
-    public function __construct(private BookingAvailability $availability) {}
+    public function __construct(
+        private BookingAvailability $availability,
+        private NotificationDispatcher $notifications,
+    ) {}
 
     /**
      * Store a new booking request as Pending, with its first history row.
@@ -53,7 +57,7 @@ class SubmitBooking
             ]);
         }
 
-        return DB::transaction(function () use ($details, $customer, $source, $enteredBy): Booking {
+        $booking = DB::transaction(function () use ($details, $customer, $source, $enteredBy): Booking {
             $booking = new Booking;
             $booking->user_id = $customer?->id;
             $booking->created_by = $enteredBy?->id;
@@ -81,6 +85,10 @@ class SubmitBooking
 
             return $booking;
         });
+
+        $this->notifications->bookingSubmitted($booking);
+
+        return $booking;
     }
 
     /**

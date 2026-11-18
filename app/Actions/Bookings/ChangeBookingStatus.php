@@ -8,12 +8,16 @@ use App\Models\Booking;
 use App\Models\BookingStatusHistory;
 use App\Models\User;
 use App\Services\BookingAvailability;
+use App\Services\NotificationDispatcher;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class ChangeBookingStatus
 {
-    public function __construct(private BookingAvailability $availability) {}
+    public function __construct(
+        private BookingAvailability $availability,
+        private NotificationDispatcher $notifications,
+    ) {}
 
     /**
      * Approve or reject a booking and record the change in its history.
@@ -35,7 +39,9 @@ class ChangeBookingStatus
 
         $this->useReadCommittedIsolation();
 
-        return DB::transaction(function () use ($booking, $newStatus, $decidedBy, $note, $quotedAmount): Booking {
+        $previousStatus = null;
+
+        $booking = DB::transaction(function () use ($booking, $newStatus, $decidedBy, $note, $quotedAmount, &$previousStatus): Booking {
             // A single indexed equality on event_date keeps the lock to that one
             // date. The booking being decided is in this set too.
             $lockedBookings = Booking::query()
@@ -86,6 +92,10 @@ class ChangeBookingStatus
 
             return $booking;
         });
+
+        $this->notifications->bookingDecided($booking, $previousStatus);
+
+        return $booking;
     }
 
     /**

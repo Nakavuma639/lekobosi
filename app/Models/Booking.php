@@ -116,6 +116,16 @@ class Booking extends Model
     }
 
     /**
+     * Notification attempts about this booking, newest first.
+     *
+     * @return HasMany<NotificationLog, $this>
+     */
+    public function notificationLogs(): HasMany
+    {
+        return $this->hasMany(NotificationLog::class)->latest('id');
+    }
+
+    /**
      * Bookings that hold their date.
      *
      * @param  Builder<Booking>  $query

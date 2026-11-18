@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Services\BookingAvailability;
 use App\Support\PhoneNumber;
+use App\Support\WhatsAppLink;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -72,7 +73,7 @@ class BookingController extends Controller
     {
         Gate::authorize('view', $booking);
 
-        $booking->load(['statusHistories.changer', 'decider', 'creator', 'user']);
+        $booking->load(['statusHistories.changer', 'decider', 'creator', 'user', 'notificationLogs']);
 
         $hasDateConflict = $availability->hasDateConflict($booking);
         $otherBookingsOnDate = Booking::query()
@@ -82,8 +83,10 @@ class BookingController extends Controller
             ->orderBy('status')
             ->get(['id', 'reference', 'customer_name', 'status', 'guest_count']);
         $canDecide = $request->user()->can('decide', $booking);
+        $whatsappLink = WhatsAppLink::forBooking($booking);
+        $whatsappMessage = WhatsAppLink::messageFor($booking);
 
-        return view('admin.bookings.show', compact('booking', 'hasDateConflict', 'otherBookingsOnDate', 'canDecide'));
+        return view('admin.bookings.show', compact('booking', 'hasDateConflict', 'otherBookingsOnDate', 'canDecide', 'whatsappLink', 'whatsappMessage'));
     }
 
     /**
