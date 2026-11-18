@@ -30,10 +30,17 @@ class BookingReference
     }
 
     /**
-     * Tidy a reference typed by a customer: trim and uppercase.
+     * Tidy a reference typed by a customer: uppercase, drop spaces, and add
+     * the LKB- prefix if only the eight-character code was typed.
      */
     public static function normalize(string $reference): string
     {
-        return mb_strtoupper(trim($reference));
+        $reference = mb_strtoupper(preg_replace('/\s+/', '', $reference));
+
+        if (strlen($reference) === self::LENGTH && ! str_starts_with($reference, self::PREFIX)) {
+            return self::PREFIX.$reference;
+        }
+
+        return $reference;
     }
 }

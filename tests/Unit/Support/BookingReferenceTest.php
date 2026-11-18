@@ -18,6 +18,10 @@ it('does not repeat references across many generations', function () {
     expect(array_unique($references))->toHaveCount(1000);
 });
 
-it('normalises typed references to trimmed uppercase', function () {
-    expect(BookingReference::normalize('  lkb-7k3qx9md '))->toBe('LKB-7K3QX9MD');
-});
+it('normalises typed references', function (string $typed) {
+    expect(BookingReference::normalize($typed))->toBe('LKB-7K3QX9MD');
+})->with([
+    'lowercase with spaces around' => '  lkb-7k3qx9md ',
+    'spaces inside' => 'LKB- 7K3Q X9MD',
+    'code without prefix' => '7k3qx9md',
+]);

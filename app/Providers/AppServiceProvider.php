@@ -37,5 +37,11 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('availability', fn (Request $request) => Limit::perMinute(60)->by($request->ip()));
 
         RateLimiter::for('registrations', fn (Request $request) => Limit::perMinute(10)->by($request->ip()));
+
+        // Only lookups count, so opening the empty track page is never blocked.
+        // Ten per minute makes guessing references impractical.
+        RateLimiter::for('tracking', fn (Request $request) => $request->filled('reference')
+            ? Limit::perMinute(10)->by($request->ip())
+            : Limit::none());
     }
 }

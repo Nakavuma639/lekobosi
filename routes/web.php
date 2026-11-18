@@ -6,6 +6,7 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\Customer;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TrackBookingController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'site.home')->name('home');
@@ -19,7 +20,9 @@ Route::get('/booking/submitted', [BookingController::class, 'confirmation'])->na
 Route::get('/availability', AvailabilityController::class)
     ->middleware('throttle:availability')
     ->name('availability');
-Route::view('/track-booking', 'site.track-booking')->name('bookings.track');
+Route::get('/track-booking', TrackBookingController::class)
+    ->middleware('throttle:tracking')
+    ->name('bookings.track');
 Route::view('/contact', 'site.contact')->name('contact.create');
 
 Route::get('/dashboard', DashboardController::class)

@@ -76,6 +76,13 @@ Also on the form:
 - When the date changes, the form calls `GET /availability?month=YYYY-MM` and warns if the date is already full. The server checks again on submit.
 - Signed-in customers get their name, email and phone prefilled.
 
+### Track booking
+`reference`, sent by GET to `/track-booking`.
+- Input is forgiving: case, spaces and a missing `LKB-` prefix are all accepted.
+- Shows only the reference, status, event type, event date and last update, plus the reason when rejected.
+- Unknown references return 404 with the same message every time.
+- Lookups are limited to 10 a minute per IP; just opening the page doesn't count.
+
 ### Contact
 `name`, `email`, `phone` (optional), `subject` (optional, ≤150), `message` (10–2000). `phone` and `subject` were added to match the spec. The original form had no `name` attribute on the sender field.
 
@@ -92,7 +99,6 @@ Also on the form:
 
 | Where | Placeholder | Phase |
 |---|---|---|
-| Track page | no result area | 3 |
 | Admin dashboard | booking totals and booking table (empty state) | 4 |
 | Contact form | `action="#"` | 5 |
 | Customer dashboard | quote, paid and balance per booking (the booking list itself is live) | 7 |
