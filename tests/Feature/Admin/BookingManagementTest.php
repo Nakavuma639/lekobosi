@@ -97,6 +97,47 @@ describe('booking list', function () {
             ->get(route('admin.bookings.index', ['from' => '2026-12-31', 'to' => '2026-12-01']))
             ->assertSessionHasErrors('to');
     });
+
+    it('lists the most recently received requests first by default', function () {
+        $older = Booking::factory()->create(['created_at' => now()->subDays(3)]);
+        $newest = Booking::factory()->create(['created_at' => now()->subHour()]);
+        $middle = Booking::factory()->create(['created_at' => now()->subDay()]);
+
+        $this->actingAs($this->admin)
+            ->get(route('admin.bookings.index'))
+            ->assertSeeInOrder([$newest->reference, $middle->reference, $older->reference]);
+    });
+});
+
+describe('new requests badge', function () {
+    it('counts only pending requests received within the configured window', function () {
+        config(['lekobosi.bookings.new_request_days' => 7]);
+        Booking::factory()->count(2)->create(['created_at' => now()->subDays(2)]);
+        Booking::factory()->create(['created_at' => now()->subDays(8)]);
+        Booking::factory()->approved()->create(['created_at' => now()->subDay()]);
+
+        expect(Booking::query()->newRequests()->count())->toBe(2);
+
+        $this->actingAs($this->admin)
+            ->get(route('admin.dashboard'))
+            ->assertSee('2<span class="sr-only"> new requests</span>', false);
+    });
+
+    it('shows no badge when there are no new requests', function () {
+        Booking::factory()->approved()->create();
+
+        $this->actingAs($this->admin)
+            ->get(route('admin.dashboard'))
+            ->assertDontSee('new request');
+    });
+
+    it('is shown to staff as well as the owner', function () {
+        Booking::factory()->create();
+
+        $this->actingAs(User::factory()->staff()->create())
+            ->get(route('admin.bookings.index'))
+            ->assertSee('1<span class="sr-only"> new request</span>', false);
+    });
 });
 
 describe('booking detail', function () {

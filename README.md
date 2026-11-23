@@ -63,12 +63,12 @@ Then **delete `ADMIN_SEED_PASSWORD` from `.env`**. Running the command again lat
 Start everything (web server, queue worker and Vite):
 
 ```bash
-composer run dev
+php artisan dev
 ```
 
 Open http://localhost:8000. The owner logs in at `/login` and lands on `/admin`.
 
-> **Emails are queued.** If you start only `php artisan serve`, emails wait in the queue ("Waiting to send" on a booking page). Use `composer run dev`, or run `php artisan queue:work` in a second terminal.
+> **Emails are queued.** If you start only `php artisan serve`, emails wait in the queue ("Waiting to send" on a booking page). Use `cphp artisan dev`, or run `php artisan queue:work` in a second terminal.
 
 ### Demo data (optional, local only)
 

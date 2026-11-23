@@ -81,6 +81,7 @@
                                 <th scope="col" class="px-6 py-3 font-medium">Event</th>
                                 <th scope="col" class="px-6 py-3 font-medium">Event date</th>
                                 <th scope="col" class="px-6 py-3 font-medium">Guests</th>
+                                <th scope="col" class="px-6 py-3 font-medium">Received</th>
                                 <th scope="col" class="px-6 py-3 font-medium">Status</th>
                                 <th scope="col" class="px-6 py-3 font-medium"><span class="sr-only">Actions</span></th>
                             </tr>
@@ -101,6 +102,12 @@
                                         @endif
                                     </td>
                                     <td class="px-6 py-4">{{ number_format($booking->guest_count) }}</td>
+                                    <td class="whitespace-nowrap px-6 py-4">
+                                        <time datetime="{{ $booking->created_at->toIso8601String() }}" title="{{ $booking->created_at->format('j M Y, H:i') }}">{{ $booking->created_at->diffForHumans() }}</time>
+                                        @if ($booking->status === \App\Enums\BookingStatus::Pending && $booking->created_at->gte(now()->subDays(config('lekobosi.bookings.new_request_days'))))
+                                            <span class="mt-1 block text-xs font-semibold text-brand-700">New</span>
+                                        @endif
+                                    </td>
                                     <td class="px-6 py-4"><x-booking-status :status="$booking->status" class="text-xs" /></td>
                                     <td class="px-6 py-4 text-right">
                                         <a href="{{ route('admin.bookings.show', $booking) }}" class="font-semibold text-brand-700 hover:text-brand-800">

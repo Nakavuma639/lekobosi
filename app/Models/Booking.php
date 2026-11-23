@@ -199,4 +199,17 @@ class Booking extends Model
     {
         $query->where($query->qualifyColumn('status'), BookingStatus::Approved);
     }
+
+    /**
+     * Pending requests received recently enough to count as "new"
+     * (lekobosi.bookings.new_request_days).
+     *
+     * @param  Builder<Booking>  $query
+     */
+    #[Scope]
+    protected function newRequests(Builder $query): void
+    {
+        $query->where($query->qualifyColumn('status'), BookingStatus::Pending)
+            ->where($query->qualifyColumn('created_at'), '>=', now()->subDays(config('lekobosi.bookings.new_request_days')));
+    }
 }

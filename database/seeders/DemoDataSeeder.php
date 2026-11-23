@@ -84,23 +84,34 @@ class DemoDataSeeder extends Seeder
      */
     private function booking(BookingStatus $status, mixed $date, array $attributes = [], ?User $decidedBy = null): Booking
     {
+        // Spread arrival times so the newest-first list and the "new" badge look real:
+        // pending requests arrived in the last 10 days, decided ones 3 to 6 weeks ago.
+        $receivedAt = $status === BookingStatus::Pending
+            ? now()->subMinutes(fake()->numberBetween(30, 10 * 24 * 60))
+            : now()->subMinutes(fake()->numberBetween(21 * 24 * 60, 45 * 24 * 60));
+
         $booking = Booking::factory()->on($date->toDateString())->create(array_merge([
             'status' => $status,
             'decided_by' => $status === BookingStatus::Pending ? null : $decidedBy?->id,
+            'created_at' => $receivedAt,
+            'updated_at' => $receivedAt,
         ], $attributes));
 
-        $this->history($booking, null, BookingStatus::Pending, $booking->created_by ? User::find($booking->created_by) : null);
+        $this->history($booking, null, BookingStatus::Pending, $booking->created_by ? User::find($booking->created_by) : null, at: $receivedAt);
 
         if ($status !== BookingStatus::Pending) {
-            $this->history($booking, BookingStatus::Pending, $status === BookingStatus::Rejected ? BookingStatus::Rejected : BookingStatus::Approved, $decidedBy, $booking->decision_note);
+            $this->history($booking, BookingStatus::Pending, $status === BookingStatus::Rejected ? BookingStatus::Rejected : BookingStatus::Approved, $decidedBy, $booking->decision_note, $receivedAt->copy()->addDay());
         }
 
         return $booking;
     }
 
-    private function history(Booking $booking, ?BookingStatus $from, BookingStatus $to, ?User $by, ?string $note = null): void
+    private function history(Booking $booking, ?BookingStatus $from, BookingStatus $to, ?User $by, ?string $note = null, mixed $at = null): void
     {
         $history = new BookingStatusHistory;
+        if ($at) {
+            $history->created_at = $at;
+        }
         $history->booking_id = $booking->id;
         $history->from_status = $from;
         $history->to_status = $to;

@@ -3,14 +3,18 @@
 namespace App\Providers;
 
 use App\Enums\UserRole;
+use App\Models\Booking;
 use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Contracts\View\View as ViewContract;
 use Illuminate\Foundation\DevCommands;
 use Illuminate\Http\Middleware\TrustProxies;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -31,6 +35,7 @@ class AppServiceProvider extends ServiceProvider
         $this->configureRateLimiting();
         $this->configureGates();
         $this->configureHttps();
+        $this->configureNavigation();
 
         DevCommands::withoutVendorCommands();
         DevCommands::withoutDefaultCommands();
@@ -56,6 +61,19 @@ class AppServiceProvider extends ServiceProvider
         if (config('lekobosi.security.force_https')) {
             URL::forceScheme('https');
         }
+    }
+
+    /**
+     * Give the back-office navigation the count of new booking requests for
+     * the badge beside "Bookings". Customers never trigger the query.
+     */
+    private function configureNavigation(): void
+    {
+        View::composer('layouts.navigation', function (ViewContract $view): void {
+            $user = Auth::user();
+
+            $view->with('newBookingRequests', $user instanceof User && $user->isBackOffice() ? Booking::query()->newRequests()->count() : 0);
+        });
     }
 
     /**

@@ -19,6 +19,10 @@ return [
         'min_lead_days' => (int) env('MIN_LEAD_DAYS', 1),
         'max_lead_years' => 2,
         'max_guests' => (int) env('MAX_GUESTS', 5000),
+
+        // Pending requests received within this many days count towards the
+        // "new" badge beside Bookings in the back-office navigation.
+        'new_request_days' => (int) env('NEW_BOOKING_BADGE_DAYS', 7),
     ],
 
     /*

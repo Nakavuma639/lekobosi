@@ -3,7 +3,7 @@
     $navLinks = $user->isBackOffice()
         ? [
             ['route' => 'admin.dashboard', 'label' => 'Dashboard'],
-            ['route' => 'admin.bookings.index', 'label' => 'Bookings', 'active' => 'admin.bookings.*'],
+            ['route' => 'admin.bookings.index', 'label' => 'Bookings', 'active' => 'admin.bookings.*', 'badge' => $newBookingRequests ?? 0],
             ['route' => 'admin.payments.index', 'label' => 'Payments'],
             ['route' => 'admin.calendar', 'label' => 'Calendar'],
             ['route' => 'admin.messages.index', 'label' => 'Messages', 'active' => 'admin.messages.*'],
@@ -31,6 +31,7 @@
                     @foreach ($navLinks as $link)
                         <x-nav-link :href="route($link['route'])" :active="request()->routeIs($link['active'] ?? $link['route'])">
                             {{ $link['label'] }}
+                            <x-nav-badge :count="$link['badge'] ?? 0" class="ms-1.5" />
                         </x-nav-link>
                     @endforeach
                     <x-nav-link :href="route('home')">
@@ -94,6 +95,7 @@
             @foreach ($navLinks as $link)
                 <x-responsive-nav-link :href="route($link['route'])" :active="request()->routeIs($link['active'] ?? $link['route'])">
                     {{ $link['label'] }}
+                    <x-nav-badge :count="$link['badge'] ?? 0" class="ms-2" />
                 </x-responsive-nav-link>
             @endforeach
             <x-responsive-nav-link :href="route('home')">

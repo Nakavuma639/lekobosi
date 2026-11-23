@@ -47,7 +47,7 @@
         <h2 class="text-3xl font-semibold">Meet the team</h2>
         <div class="mt-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
             @foreach ([
-                ['name' => 'Namagembe Harriet', 'role' => 'Head Chef and CEO', 'image' => 'images/team-harriet.jpg', 'phone' => '+256775847855', 'display' => '+256 775 847 855', 'email' => 'Maryharriet07@gmail.com'],
+                ['name' => 'Namagembe Harriet', 'role' => 'Head Chef and CEO', 'image' => 'images/team-harriet.jpg', 'phone' => '+256775847855', 'display' => '+256 775 847 855', 'email' => 'Mayharriet07@gmail.com'],
                 ['name' => 'Nakavuma Phionah', 'role' => 'Manager', 'image' => 'images/team-phionah.jpg', 'phone' => '+256775150674', 'display' => '+256 775 150 674', 'email' => 'phionahnakavuma1@gmail.com'],
                 ['name' => 'Kakumba Joseph', 'role' => 'Events Coordinator', 'image' => 'images/team-joseph.jpg', 'phone' => '+256753132455', 'display' => '+256 753 132 455', 'email' => null],
             ] as $member)
