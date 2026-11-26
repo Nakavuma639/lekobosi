@@ -15,6 +15,7 @@ return [
     */
 
     'bookings' => [
+        'max_guests_per_day' => 2000,
         'max_events_per_day' => (int) env('MAX_EVENTS_PER_DAY', 1),
         'min_lead_days' => (int) env('MIN_LEAD_DAYS', 1),
         'max_lead_years' => 2,

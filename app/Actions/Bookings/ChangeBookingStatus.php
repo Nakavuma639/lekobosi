@@ -60,17 +60,20 @@ class ChangeBookingStatus
                 ]);
             }
 
-            if ($newStatus === BookingStatus::Approved) {
-                $approvedOnDate = $lockedBookings
-                    ->where('status', BookingStatus::Approved)
-                    ->where('id', '!=', $booking->id)
-                    ->count();
+         if ($newStatus === BookingStatus::Approved) {
+            $approvedGuestsOnDate = $lockedBookings
+             ->filter(fn ($item) =>
+            $item->status === BookingStatus::Approved
+            && $item->id !== $booking->id
+        )
+        ->sum('guest_count');
 
-                if ($approvedOnDate >= $this->availability->capacity()) {
-                    throw new BookingDateFullException($booking->event_date);
-                }
-            }
+    $totalGuests = $approvedGuestsOnDate + (int) $booking->guest_count;
 
+    if ($totalGuests > 2000) {
+        throw new BookingDateFullException($booking->event_date);
+    }
+}
             $booking->status = $newStatus;
             $booking->status_changed_at = now();
             $booking->decided_by = $decidedBy->id;

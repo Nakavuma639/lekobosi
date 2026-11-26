@@ -49,14 +49,18 @@ class SubmitBooking
      */
     public function handle(array $details, ?User $customer = null, BookingSource $source = BookingSource::Online, ?User $enteredBy = null): Booking
     {
-        if ($this->availability->isFull($details['event_date'])) {
-            $this->recordConflictAttempt($details);
+       $eventDate = CarbonImmutable::parse($details['event_date']);
+       $requestedGuests = (int) $details['guest_count'];
+       $approvedGuests = $this->availability->approvedGuestsOn($eventDate);
+       $dailyCapacity = 2000;
 
-            throw ValidationException::withMessages([
-                'date' => 'That date is already booked. Please choose another date.',
-            ]);
-        }
+if (($approvedGuests + $requestedGuests) > $dailyCapacity) {
+    $this->recordConflictAttempt($details);
 
+    throw ValidationException::withMessages([
+        'date' => 'This date does not have enough remaining guest capacity. Please choose another date or reduce the number of guests.',
+    ]);
+}
         $booking = DB::transaction(function () use ($details, $customer, $source, $enteredBy): Booking {
             $booking = new Booking;
             $booking->user_id = $customer?->id;

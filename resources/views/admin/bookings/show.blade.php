@@ -39,12 +39,12 @@
                 <p class="rounded-lg border border-brand-200 bg-brand-50 px-4 py-3 text-sm font-medium text-brand-800" role="alert">{{ $message }}</p>
             @enderror
 
-            @if ($hasDateConflict)
+            <!-- @if ($hasDateConflict)
                 <div class="rounded-xl border border-saffron-300 bg-saffron-50 px-5 py-4" role="alert">
                     <p class="font-semibold text-stone-900">This date is already taken</p>
                     <p class="mt-1 text-sm text-stone-700">Another booking on {{ $booking->event_date->format('j F Y') }} has been approved, so this request can't be approved unless that one is cancelled. You may want to reject it with a note suggesting another date.</p>
                 </div>
-            @endif
+            @endif -->
 
             <section class="rounded-xl border border-stone-200 bg-white" aria-labelledby="event-heading">
                 <h2 id="event-heading" class="border-b border-stone-200 px-6 py-4 text-lg font-semibold">Event</h2>
@@ -156,10 +156,11 @@
                             <input id="quoted_amount" name="quoted_amount" type="text" inputmode="numeric" value="{{ old('quoted_amount') }}" placeholder="e.g. 4,500,000" class="field-input">
                             @error('quoted_amount') <p class="field-error">{{ $message }}</p> @enderror
                         </div>
-                        <button type="submit" class="btn w-full bg-emerald-700 text-white hover:bg-emerald-800" @disabled($hasDateConflict)>Approve booking</button>
-                        @if ($hasDateConflict)
+                        <!-- <button type="submit" class="btn w-full bg-emerald-700 text-white hover:bg-emerald-800" @disabled($hasDateConflict)>Approve booking</button> -->
+                         <button type="submit" class="btn w-full bg-emerald-700 text-white hover:bg-emerald-800">Approve booking</button>
+                        <!-- @if ($hasDateConflict)
                             <p class="text-xs text-stone-500">Approval is unavailable while the date is taken.</p>
-                        @endif
+                        @endif -->
                     </form>
 
                     <form method="POST" action="{{ route('admin.bookings.status.update', $booking) }}" class="mt-6 space-y-4 border-t border-stone-200 pt-6">

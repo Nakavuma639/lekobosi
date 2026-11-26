@@ -117,4 +117,11 @@ class BookingAvailability
             ->values()
             ->all();
     }
+    public function approvedGuestsOn(CarbonInterface $date): int
+{
+    return (int) Booking::query()
+        ->approved()
+        ->whereDate('event_date', $date->toDateString())
+        ->sum('guest_count');
+}
 }
